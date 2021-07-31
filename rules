@@ -1,0 +1,15 @@
+OBJECTS
+	a: getInstance(digestAlgorithm, primes);
+	b: getInstance(digestAlgorithm, iv);
+	c: PBEParameterSpec(salt, primes);
+
+ORDER
+	a(b|c)+d
+
+CONSTRAINTS
+	EQ(a:primes >= 20000)
+	EQ(c:primes >= 10000)
+	EQ(a:digestAlgorithm == SHA || RSA)
+	RAND(b:iv)
+	PRIME(a:primes)
+	REPLAY(b:iv)
