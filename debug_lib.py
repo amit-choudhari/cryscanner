@@ -10,21 +10,21 @@ class SimpleCommand(gdb.Command):
         fo=open("log.txt","w+")
         fi=open("scratch.txt", "w+")
         def __init__(self):
-            super(SimpleCommand, self).__init__("simple_command", gdb.COMMAND_DATA)
+            super(SimpleCommand, self).__init__("simple_command", gdb.COMMAND_USER)
 	
         def print_args(self):
-            print('## START arguments')
+            print('=> START arguments')
             gdb.execute('info args')
-            print('## END arguments')
+            print('=> END arguments')
 
         def print_stacktrace(self):
-            print('## START stack frame')
+            print('=> START stack frame')
             cur_frame = gdb.selected_frame()
             while cur_frame is not None:
                 print(cur_frame.name())
                 # get the next frame
                 cur_frame = cur_frame.older()
-            print('## END stack frame')
+            print('=> END stack frame')
 
         def parse_bt(self):
            line = self.fi.readline()
@@ -39,7 +39,7 @@ class SimpleCommand(gdb.Command):
         def parse_args(self):
             line = self.fi.readline()
             while(line != ''):
-                if '## INFO ARGS-END' in line:
+                if '=> INFO ARGS-END' in line:
                     break
                 arg = line.split(' =')[0]
                 s = "ptype "+arg
@@ -54,9 +54,19 @@ class SimpleCommand(gdb.Command):
                 gdb.execute("set logging on")
                 tmp_line = ft.readline()
                 if 'struct' in tmp_line:
+                    while(tmp_line != ''):
+                        check_line = tmp_line
+                        tmp_line = ft.readline()
                     print ('struct '+arg)
-                    s1 = 'print *' +arg
-                    gdb.execute(s1)
+                    if '} *' in check_line:
+                        s1 = 'print *' +arg
+                    else:
+                        s1 = 'print ' +arg
+                    try:
+                        gdb.execute(s1)
+                    except:
+                        pass
+
                 else:
                     s1 = 'print '+arg
                     print (s+' '+line)
@@ -83,17 +93,17 @@ class SimpleCommand(gdb.Command):
             print("Hello from simple_command")
             gdb.execute('start')
 
-            # TODO: add breakpoints
+            # Add breakpoints
             for api in apis:
                 bp = gdb.Breakpoint(api)
             print('')
-            print('## BREAKPOINT END')
+            print('=> BREAKPOINT END')
 
             logging.basicConfig(filename="scratch.txt", level=logging.INFO)
 
-            #TODO: RUN
             while True:
                 gdb.execute("set logging on")
+                # TODO fix finish command
                 #gdb.execute("finish")
                 gdb.execute("continue")
 
@@ -114,16 +124,16 @@ class SimpleCommand(gdb.Command):
                 #       like structs, pointer to structs.
                 # TODO: Find a way to get output arguments.
                 # TODO: Push to log file
-                print('## BREAKPOINT HIT!!')
-                print('## Backtrace')
+                print('=> BREAKPOINT HIT!!')
+                print('=> Backtrace')
                 gdb.execute('backtrace')
-                print('## INFO ARGS-START')
+                print('=> INFO ARGS-START')
                 gdb.execute('info args')
-                print('## INFO ARGS-END')
+                print('=> INFO ARGS-END')
                 gdb.execute('set logging off')
                 gdb.execute('set logging on')
 
-                print('## BEFORE PARSE')
+                print('=> BEFORE PARSE')
                 gdb.execute("set logging off")
                 gdb.execute("set logging on")
 
@@ -135,7 +145,7 @@ class SimpleCommand(gdb.Command):
                     if 'Backtrace' in line:
                         self.parse_bt()
                     line = self.fi.readline()
-            print('## AFTER CONSUMING COMMANDS')
+            print('=> AFTER CONSUMING COMMANDS')
             gdb.execute("set logging off")
 
 SimpleCommand()
