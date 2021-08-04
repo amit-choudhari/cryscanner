@@ -26,23 +26,45 @@ class parseLogs:
                 #print(x.getVar(k_var))
                 #print(x)
 
-    def __parseStruct(self, fname, struct_var):
+    def __flattenStruct(self, sname_t, struct_var):
+        # extract struct elements (except nested structs)
+        LPAR,RPAR = map(Suppress, "{}")
+        value = (originalTextFor(OneOrMore(Word(printables, excludeChars="{},") | nestedExpr('{','}'))))
+        expr = Suppress(sname_t + SkipTo(Literal('{'))) + LPAR + delimitedList(value) + RPAR
+        vlist = expr.parseString(struct_var).asList()
+        return vlist
+
+    def __parseStruct(self, fname, struct_var, prefix = ''):
         #print(struct_var[0])
         # extract struct name
-        sname_t = Word(printables) + Suppress(LineEnd())
-        sname = sname_t.parseString(struct_var[0])[0]
+        sname_t = Word(printables) + (Suppress(Literal('=')) | Suppress(LineEnd()))
+        sname = sname_t.parseString(struct_var)[0]
         print(sname)
 
+        vlist = self.__flattenStruct(sname_t, struct_var)
+        '''
         # extract struct elements (except nested structs)
         LPAR,RPAR = map(Suppress, "{}")
         value = (originalTextFor(OneOrMore(Word(printables, excludeChars="{},") | nestedExpr('{','}'))))
         expr = Suppress(sname_t + SkipTo(Literal('{'))) + LPAR + delimitedList(value) + RPAR
         vlist = expr.parseString(struct_var[0]).asList()
+        '''
 
+        nested = False
+        dot = f'.' if prefix else f''
+        prefix = f'{prefix}{dot}{sname}'
         # insert all extracted variables in Object
         for v in vlist:
-            prefix = sname 
-            self.__parseVariables(fname, v, prefix)
+            if '=' not in v:
+                continue
+            if '{' in v:
+                nested = True
+            #print('v: ',v)
+            if nested:
+                self.__parseStruct(fname, v, prefix)
+                nested = False
+            else:
+                self.__parseVariables(fname, v, prefix)
             pass
 
         '''
@@ -77,7 +99,7 @@ class parseLogs:
         doc = Optional(text) + ZeroOrMore(sections)
         svar = doc.parseString(obj[0])
         if 'struct' in obj[0]:
-            self.__parseStruct(fname, svar.snames[0].asList())
+            self.__parseStruct(fname, svar.snames[0].asList()[0])
         if 'ptype' in obj[0]:
             self.__parseVariables(fname, svar.pnames[0].asList()[0], None)
 
@@ -93,9 +115,9 @@ class parseLogs:
         #text = StringStart() + SkipTo(StringEnd())
         doc = ZeroOrMore(object_section)
         result = doc.parseFile(fileName)
-        print(result.objects)
+        #print(result.objects)
         for i in result.objects:
-            print(i)
+            #print(i)
             self.__parseObjects(i)
         #p = result.objects[0].asList()
         #print("### P:",p[0], type(p[0]))
