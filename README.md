@@ -119,13 +119,13 @@ OrderedDict([('0', <State('0')@140718686622528>), ('1', <State('1')@140718686624
 ```
 
 ## Done
-[x] Implement rule_parser and extract list of objects, contraints, order.
-[x] Build a state machine based on order.
-[x] Implement log_parser and extract list of objects and parameters.
+- [x] Implement rule_parser and extract list of objects, contraints, order.
+- [x] Build a state machine based on order.
+- [x] Implement log_parser and extract list of objects and parameters.
 ## TODO
-[-] Verify Order rules
-[-] Implement Operations for constraint check (EQ, RAND, PRIME, REPLAY, PASS)
-[-] Add support of return value
+- [-] Verify Order rules
+- [-] Implement Operations for constraint check (EQ, RAND, PRIME, REPLAY, PASS)
+- [-] Add support of return value
 
 **Free Software, Hell Yeah!**
 
