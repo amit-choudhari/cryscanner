@@ -31,20 +31,12 @@ class StateMachine(object):
     def create(self, sm):
         pass
 
-    def verify(self):
+    def verify(self, call_flow):
         event = Event(None, self.machine)
-        print("###",event)
-        print(self.state)
-        self.trigger('a')
-        print(self.state)
-        self.trigger('b')
-        print(self.state)
-        self.trigger('c')
-        print(self.state)
-        self.trigger('d')
-        print(self.state)
-        self.trigger('a')
-        print(self.state)
+        #print("###",event)
+        for i in call_flow:
+            self.trigger(i)
+            print(i,' ',self.state)
 
         self.get_graph().draw('my_state_diagram.png', prog='dot')
         #print(FSM.get_model_state())
@@ -78,7 +70,13 @@ class Order(object):
         self.FSM = None
 
     # TODO order verification with logs
-    def verify(self):
-        self.FSM.verify()
+    def verify(self, LObj):
+        call_flow = []
+        for o in LObj:
+            for k, v in self.Objects.items():
+                if self.Objects[k].getfname() == o.getfname():
+                    call_flow.append(k)
+
+        self.FSM.verify(call_flow)
         pass
 

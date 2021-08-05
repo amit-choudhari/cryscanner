@@ -9,7 +9,7 @@ class parseLogs:
     def __str__(self):
         pass
     
-    def __parseVariables(self, fname, pvar, prefix):
+    def __parseVariables(self, fname, pvar, prefix=''):
         #print(pvar)
         var_t = Word(printables) + Suppress(Literal('=')) + OneOrMore(Word(printables))
         var = var_t.parseString(pvar)
@@ -24,7 +24,7 @@ class parseLogs:
             if x.getfname() == fname:
                 x.addVar(d_var)
                 #print(x.getVar(k_var))
-                #print(x)
+                print(x)
 
     def __flattenStruct(self, sname_t, struct_var):
         # extract struct elements (except nested structs)
@@ -42,20 +42,17 @@ class parseLogs:
         print(sname)
 
         vlist = self.__flattenStruct(sname_t, struct_var)
-        '''
-        # extract struct elements (except nested structs)
-        LPAR,RPAR = map(Suppress, "{}")
-        value = (originalTextFor(OneOrMore(Word(printables, excludeChars="{},") | nestedExpr('{','}'))))
-        expr = Suppress(sname_t + SkipTo(Literal('{'))) + LPAR + delimitedList(value) + RPAR
-        vlist = expr.parseString(struct_var[0]).asList()
-        '''
 
         nested = False
         dot = f'.' if prefix else f''
         prefix = f'{prefix}{dot}{sname}'
         # insert all extracted variables in Object
+        # recursively find structures
         for v in vlist:
             if '=' not in v:
+                continue
+            # TODO add support for Arrays
+            if '{{' in v:
                 continue
             if '{' in v:
                 nested = True
@@ -101,7 +98,7 @@ class parseLogs:
         if 'struct' in obj[0]:
             self.__parseStruct(fname, svar.snames[0].asList()[0])
         if 'ptype' in obj[0]:
-            self.__parseVariables(fname, svar.pnames[0].asList()[0], None)
+            self.__parseVariables(fname, svar.pnames[0].asList()[0])
 
         pass
 

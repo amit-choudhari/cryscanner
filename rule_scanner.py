@@ -17,8 +17,8 @@ class parseRules:
     def __parseConstraints(self, constraints):
         for line in constraints[0].splitlines():
             Operation_t = oneOf('EQ RAND PRIME REPLAY PASSWORD') + Suppress(Literal('(')) 
-            Object_t = Suppress(Operation_t) + Word(alphanums) + Suppress(Literal(':'))
-            Operand_t = Suppress(Object_t) + Word(alphanums) 
+            Object_t = Suppress(Operation_t) + Word(alphanums+'_') + Suppress(Literal(':'))
+            Operand_t = Suppress(Object_t) + Word(alphanums+'_') 
 
             Operation = Operation_t.parseString(line)[0]
             Object = Object_t.parseString(line)[0]
@@ -43,8 +43,8 @@ class parseRules:
     def __parseObjects(self, objects):
         for line in objects[0].splitlines():
             sname_t = Word(alphanums) + Suppress(Literal(':'))
-            fname_t = Suppress(sname_t) + Word(alphanums) + Suppress(Literal('('))
-            vars_t = Word(alphanums) + Suppress(Optional(Literal(',')))
+            fname_t = Suppress(sname_t) + Word(alphanums+'_') + Suppress(Literal('('))
+            vars_t = Word(alphanums+'_') + Suppress(Optional(Literal(',')))
             var_t = Suppress(fname_t) + ZeroOrMore(vars_t) + Suppress(Literal(')'))
          
             # sudo name

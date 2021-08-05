@@ -1,15 +1,11 @@
 OBJECTS
-	a: getInstance(digestAlgorithm, primes);
-	b: getInstance(digestAlgorithm, iv);
-	c: PBEParameterSpec(salt, primes);
+	a: SSL_CTX_new(meth)
+	b: OPENSSL_init_ssl(opts, settings)
+	c: SSL_CTX_get_cert_store(ctx)
+	d: SSL_new(ctx)
+	e: SSL_write(s, buf, num)
 
 ORDER
-	a(b|c)+d
+	ab(c)+dbe
 
 CONSTRAINTS
-	EQ(a:primes >= 20000)
-	EQ(c:primes >= 10000)
-	EQ(a:digestAlgorithm == SHA || RSA)
-	RAND(b:iv)
-	PRIME(a:primes)
-	REPLAY(b:iv)

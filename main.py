@@ -1,15 +1,13 @@
 from rule_scanner import parseRules
 from log_scanner import parseLogs
 
-# TODO Parse Logs
+# Parse Logs
 L = parseLogs()
 print("\nParsing Logs...")
 L.parse('log.txt')
 LObj = L.getObjects()
 for k in LObj:
     print(k)
-
-
 
 # Parse Rule file/s
 R = parseRules()
@@ -30,6 +28,5 @@ for opr in C:
 print("\nVerifying Order...")
 O = R.getOrder()
 for order in O:
-    order.verify()
+    order.verify(LObj)
     print(order)
-
