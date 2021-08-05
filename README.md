@@ -1,5 +1,5 @@
 # Cryscanner
-A generic tool to identify miuse of cryptographic libraries.
+A generic tool to identify misuse of cryptographic libraries.
 
 ## Table of contents
 * [General info](#general-info)
@@ -122,8 +122,9 @@ OrderedDict([('0', <State('0')@140718686622528>), ('1', <State('1')@140718686624
 - [x] Implement rule_parser and extract list of objects, contraints, order.
 - [x] Build a state machine based on order.
 - [x] Implement log_parser and extract list of objects and parameters.
+- [x] Verify Order rules
 ## TODO
-- [-] Verify Order rules
+- [-] Identify Final state in order verification
 - [-] Implement Operations for constraint check (EQ, RAND, PRIME, REPLAY, PASS)
 - [-] Add support of return value
 
