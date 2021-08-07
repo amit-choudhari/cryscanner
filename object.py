@@ -1,4 +1,4 @@
-# TODO add support param obj
+# TODO add/remove support param obj
 class Param:
     def __init__(self, ptype, name, value):
         self.ptype = ptype

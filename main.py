@@ -21,12 +21,12 @@ for k, v in Obj.items():
 C = R.getConstraints()
 print("\nVerifying Constraints...")
 for opr in C:
-    opr.verify()
+    opr.verify(LObj)
     print(opr)
 
 # Extract Order and verify
 print("\nVerifying Order...")
 O = R.getOrder()
 for order in O:
-    order.verify(LObj)
     print(order)
+    order.verify(LObj)

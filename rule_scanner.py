@@ -18,7 +18,7 @@ class parseRules:
         for line in constraints[0].splitlines():
             Operation_t = oneOf('EQ RAND PRIME REPLAY PASSWORD') + Suppress(Literal('(')) 
             Object_t = Suppress(Operation_t) + Word(alphanums+'_') + Suppress(Literal(':'))
-            Operand_t = Suppress(Object_t) + Word(alphanums+'_') 
+            Operand_t = Suppress(Object_t) + Word(alphanums+'_'+'.') 
 
             Operation = Operation_t.parseString(line)[0]
             Object = Object_t.parseString(line)[0]

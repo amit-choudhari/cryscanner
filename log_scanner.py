@@ -20,11 +20,14 @@ class parseLogs:
         k_var = f'{prefix}{dot}{var[0]}'
         d_var = {k_var:var[1]}
         # Update the varaible list of object
-        for x in self.m_obj:
-            if x.getfname() == fname:
-                x.addVar(d_var)
-                #print(x.getVar(k_var))
-                print(x)
+        x = self.m_obj[-1]
+        #for x in self.m_obj:
+        if x.getfname() == fname:
+            x.addVar(d_var)
+            #print(x.getVar(k_var))
+            #print(x)
+        else:
+            print("[ERROR]: OUT OF ORDER")
 
     def __flattenStruct(self, sname_t, struct_var):
         # extract struct elements (except nested structs)

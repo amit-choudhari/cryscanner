@@ -9,3 +9,5 @@ ORDER
 	ab(c)+dbe
 
 CONSTRAINTS
+	PRIME(a:meth.flags)
+	RAND(c:ctx.sha1)
