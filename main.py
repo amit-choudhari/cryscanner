@@ -30,3 +30,9 @@ O = R.getOrder()
 for order in O:
     print(order)
     order.verify(LObj)
+
+# Extract Forbidden and verify
+print("\nVerifying Forbidden API...")
+F = R.getForbidden()
+print(F)
+F.verify(LObj)

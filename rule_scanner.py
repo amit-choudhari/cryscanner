@@ -2,18 +2,27 @@ from pyparsing import *
 from order import Order
 from object import Object 
 from constraint import Constraint
+from forbidden import Forbidden
 
 class parseRules:
     def __init__ (self):
         self.m_obj = {}
         self.m_order = []
         self.m_constraints = []
-        self.m_forbidden = []
+        self.m_forbidden = None
 
     def __parseOrder(self, order):
         for line in order[0].splitlines():
             line = line.lstrip()
             self.m_order.append(Order(self.m_obj, line)) 
+
+    def __parseForbidden(self, forbidden):
+        l = []
+        for line in forbidden[0].splitlines():
+            line = line.lstrip()
+            l.extend([x.strip() for x in line.split(',')])
+            print(l)
+        self.m_forbidden = Forbidden(self.m_obj, l)
 
     def __parseConstraints(self, constraints):
         for line in constraints[0].splitlines():
@@ -116,6 +125,9 @@ class parseRules:
         # Fill Constraints
         self.__parseConstraints(result.constraints[0].asList())
 
+        # Fill Forbidden
+        self.__parseForbidden(result.forbiddens[0].asList())
+
         # TODO remove these if not required
         self.object_section = object_section
         self.order_section = order_section
@@ -132,8 +144,8 @@ class parseRules:
     def getConstraints(self):
         return self.m_constraints
 
-    # TODO add support for Forbidden class
     def getForbidden(self):
+        return self.m_forbidden
         pass
 
 

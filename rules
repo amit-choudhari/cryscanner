@@ -14,3 +14,6 @@ CONSTRAINTS
 	EQ(c:ctx.md5 == 1)
 	EQ(c:ctx.md5 == 0)
 	EQ(e:s.ext.psk_kex_mode >= 30)
+
+FORBIDDEN
+	c,d
