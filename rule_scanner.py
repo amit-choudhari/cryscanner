@@ -8,6 +8,7 @@ class parseRules:
         self.m_obj = {}
         self.m_order = []
         self.m_constraints = []
+        self.m_forbidden = []
 
     def __parseOrder(self, order):
         for line in order[0].splitlines():

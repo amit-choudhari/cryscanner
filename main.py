@@ -6,8 +6,8 @@ L = parseLogs()
 print("\nParsing Logs...")
 L.parse('log.txt')
 LObj = L.getObjects()
-for k in LObj:
-    print(k)
+#for k in LObj:
+#    print(k)
 
 # Parse Rule file/s
 R = parseRules()
@@ -15,7 +15,7 @@ R.parse("rules")
 Obj = R.getObjects()
 print("\nLoading Objects...")
 for k, v in Obj.items():
-    print(f"{k} = {v}")
+    print(f"{k}")
 
 # Extract Constraints and verify
 C = R.getConstraints()

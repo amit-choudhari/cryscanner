@@ -8,6 +8,7 @@ class Constraint:
         self.operand = operand
         self.eq = eq
         self.rhs = rhs
+        self.res = True
         self.options = {'EQ' : self.__equate,
            'RAND' : self.__checkRand,
            'PRIME' : self.__checkPrime,
@@ -27,31 +28,84 @@ class Constraint:
                 res = sympy.isprime(int(k.getVar(self.operand)))
                 print(f'{self.__str__()} {int(k.getVar(self.operand))}:{res}')
 
-    def __checkRand(self, LObj):
+    def __checkReplay(self, LObj):
+        print("Checking Replay")
         seen = set()
         res = True
-        print("Checking Rand")
         for k in LObj:
             if k.getfname() == self.Object.getfname():
                 if int(k.getVar(self.operand),0) not in seen:
                     #values.append(int(k.getVar(self.operand)))
                     seen.add(int(k.getVar(self.operand),0))
                     print(f'Pass {int(k.getVar(self.operand),0)}')
-                    res = True
                 else:
                     res = False
                     print(f'Failed {int(k.getVar(self.operand),0)}')
-                    break
         print(f'{self.__str__()} :{res}')
 
-    def __checkReplay(self):
-        print("Checking Replay")
+    def __checkRand(self, LObj):
+        # TODO Better implementation of Randomness
+        # comparing different instance of same variable
+        print("Checking Rand")
+        self.__checkReplay(LObj)
 
     def __checkPassword(self):
+        # TODO Implement something like 
+        # run hashcat with rockerlist
         print("Checking Password")
 
-    def __equate(self):
+    def __equate(self, LObj):
+        # TODO support < <= > >= == operations
         print("Checking equation")
+        res = True
+
+        if self.rhs[0].isnumeric():
+            rhs = int(self.rhs[0],0)
+        else:
+            rhs = self.rhs
+
+        for k in LObj:
+            if k.getfname() == self.Object.getfname():
+                lhs = int(k.getVar(self.operand), 0)
+            else:
+                continue
+
+            if self.eq == '<':
+                if lhs >= rhs:
+                    self.res = False
+                else:
+                    #print(f'Pass {lhs} < {self.rhs[0]}')
+                    pass
+            elif self.eq == '<=':
+                if lhs > rhs:
+                    self.res = False
+                else:
+                    #print(f'Pass {lhs} <= {self.rhs[0]}')
+                    pass
+            elif self.eq == '>':
+                if lhs <= rhs:
+                    self.res = False
+                else:
+                    #print(f'Pass {lhs} > {self.rhs[0]}')
+                    pass
+            elif self.eq == '>=':
+                if lhs < rhs:
+                    self.res = False
+                else:
+                    #print(f'Pass {lhs} >= {self.rhs[0]}')
+                    pass
+            elif self.eq == '==':
+                if lhs != rhs:
+                    self.res = False
+                else:
+                    #print(f'Pass {lhs} == {self.rhs[0]}')
+                    pass
+            else:
+                print('Unsupported operation ',self.eq)
+                self.res = False
+                break
+        print(f'{self.__str__()} :{self.res}')
+
 
 
     def set(self, operation, obj, operand, eq, rhs):
