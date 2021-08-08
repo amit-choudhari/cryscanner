@@ -6,8 +6,9 @@ from transitions import *
 from transitions.extensions import GraphMachine
 
 class StateMachine(object):
-    def __init__(self, fsm, states):
+    def __init__(self, fsm, states, finals):
         self.fsm = fsm
+        self.finals = finals
         self.machine = Machine(model=self, states=states, initial=states[0], ignore_invalid_triggers=True)
         self.gmachine = GraphMachine(model=self, states=states, initial=states[0], ignore_invalid_triggers=True)
         self.machine.auto_transitions = True
@@ -37,6 +38,11 @@ class StateMachine(object):
         for i in call_flow:
             self.trigger(i)
             print(i,' ',self.state)
+        if int(self.state) in self.finals:
+            print("Accepting state:",self.state)
+        else:
+            print("Failed Order- current state:",self.state, self.finals)
+
 
         self.get_graph().draw('my_state_diagram.png', prog='dot')
         #print(FSM.get_model_state())
@@ -57,8 +63,7 @@ class Order(object):
     def __convertToFSM(self):
         fsm = parse(self.regx_order).to_fsm()
         states = [str(x) for x in list(fsm.states)]
-        #SM = StateMachine()
-        FSM = StateMachine(fsm, states)
+        FSM = StateMachine(fsm, states, fsm.finals)
         print(states)
 
         return FSM

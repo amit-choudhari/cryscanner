@@ -27,8 +27,9 @@ for opr in C:
 # Extract Order and verify
 print("\nVerifying Order...")
 O = R.getOrder()
+print("i/p state")
 for order in O:
-    print(order)
+    #print(order)
     order.verify(LObj)
 
 # Extract Forbidden and verify

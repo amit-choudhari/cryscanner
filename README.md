@@ -57,7 +57,6 @@ Reading symbols from openssl...
 This command will capture the runtime logs in log.txt
 Run main.py
 ```
-$ python main.py 
 Parsing Logs...
 meth
 settings
@@ -139,9 +138,7 @@ EQ(SSL_write:s.ext.psk_kex_mode >= ['30']) :True
 EQ(SSL_write:s.ext.psk_kex_mode >= ['30'])
 
 Verifying Order...
-ab(c)+dbe
-OrderedDict([('0', <State('0')@140678201799296>), ('1', <State('1')@140678201799584>), ('2', <State('2')@140678201801552>), ('3', <State('3')@140678200896144>), ('4', <State('4')@140678200896096>), ('5', <State('5')@140678200893888>), ('6', <State('6')@140678201966544>)]), {0: {'a': 1}, 1: {'b': 2}, 2: {'c': 3}, 3: {'c': 3, 'd': 4}, 4: {'b': 5}, 5: {'e': 6}, 6: {}}
-
+i/p state
 a   1
 b   2
 c   3
@@ -149,6 +146,7 @@ c   3
 d   4
 b   5
 e   6
+Accepting state: 6
 
 Verifying Forbidden API...
 ['c', 'd']
@@ -165,8 +163,8 @@ Forbidden API SSL_new() is used
 - [x] Verify Order rules
 - [x] Implement Operations for constraint check (EQ, RAND, PRIME, REPLAY)
 - [x] Implement Forbidden API suppot in rules
+- [x] Identify Final state in order verification
 ## TODO
-- [-] Identify Final state in order verification
 - [-] Add support of return value
 - [-] Implement better version of RAND and PASS
 
