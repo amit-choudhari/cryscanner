@@ -155,6 +155,7 @@ Forbidden API SSL_CTX_get_cert_store() is used
 Forbidden API SSL_new() is used
 
 ```
+![State Machine](https://github.com/amitsirius/cryscanner/blob/main/my_state_diagram.png?raw=true)
 
 ## Done
 - [x] Implement rule\_parser and extract list of objects, contraints, order.
