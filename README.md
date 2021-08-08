@@ -25,20 +25,24 @@ b. rule\_scanner.py: Parses the rules file to extracts the information on parame
 Below is a sample rule file.
 ```
 OBJECTS
-	a: getInstance(digestAlgorithm, primes);
-	b: getInstance(digestAlgorithm, iv);
-	c: PBEParameterSpec(salt, primes);
+	a: SSL_CTX_new(meth)
+	b: OPENSSL_init_ssl(opts, settings)
+	c: SSL_CTX_get_cert_store(ctx)
+	d: SSL_new(ctx)
+	e: SSL_write(s, buf, num)
 
 ORDER
-	a(b|c)+d
+	ab(c)+dbe
 
 CONSTRAINTS
-	EQ(a:primes >= 20000)
-	EQ(c:primes >= 10000)
-	EQ(a:digestAlgorithm == SHA || RSA)
-	RAND(b:iv)
-	PRIME(a:primes)
-	REPLAY(b:iv)
+	PRIME(a:meth.flags)
+	RAND(c:ctx.sha1)
+	EQ(c:ctx.md5 == 1)
+	EQ(c:ctx.md5 == 0)
+	EQ(e:s.ext.psk_kex_mode >= 30)
+
+FORBIDDEN
+	c,d
 ```
 
 ## Setup
@@ -54,46 +58,90 @@ This command will capture the runtime logs in log.txt
 Run main.py
 ```
 $ python main.py 
-
 Parsing Logs...
-SSL_CTX_new()
-var:meth.version = -135102464
-var:meth.flags = 32767
-var:meth.mask = 140737354133008
-var:meth.ssl_new = 0x7ffff7fafd30
-...
-
-OPENSSL_init_ssl()
-var:settings.filename = 0x6574617473
-var:settings.appname = 0x525f505645000000
-var:settings.flags = 7089068670126935617
-var:Noneopts = 140733193388033
-
+meth
+settings
+ctx
+stats
+ex_data
+ext
+srp_ctx
+dane
+ssl_mac_pkey_id
+ssl_cipher_methods
+ssl_digest_methods
+ssl_mac_secret_size
+ctx
+stats
+ex_data
+ext
+srp_ctx
+dane
+ssl_mac_pkey_id
+ssl_cipher_methods
+ssl_digest_methods
+ssl_mac_secret_size
+ctx
+stats
+ex_data
+ext
+srp_ctx
+dane
+ssl_mac_pkey_id
+ssl_cipher_methods
+ssl_digest_methods
+ssl_mac_secret_size
+s
+statem
+s3
+tmp
+valid_flags
+dane
+ex_data
+ext
+ocsp
+srp_ctx
+trigger=a, source=0, dest=1
+trigger=b, source=1, dest=2
+trigger=c, source=2, dest=3
+trigger=c, source=3, dest=3
+trigger=d, source=3, dest=4
+trigger=b, source=4, dest=5
+trigger=e, source=5, dest=6
 ['0', '1', '2', '3', '4', '5', '6']
+['c', 'd']
 
 Loading Objects...
-a = SSL_CTX_new()
-var:meth = None
-
-b = OPENSSL_init_ssl()
-var:opts = None
-var:settings = None
-
-c = SSL_CTX_get_cert_store()
-var:ctx = None
-
-d = SSL_new()
-var:ctx = None
-
-e = SSL_write()
-var:s = None
-var:buf = None
-var:num = None
-
+a
+b
+c
+d
+e
 
 Verifying Constraints...
+Checking Prime
+PRIME(SSL_CTX_new:meth.flags  ) 2067337:True
+PRIME(SSL_CTX_new:meth.flags  )
+Checking Rand
+Checking Replay
+Pass 140737353809328
+Pass 129
+RAND(SSL_CTX_get_cert_store:ctx.sha1  ) :True
+RAND(SSL_CTX_get_cert_store:ctx.sha1  )
+Checking equation
+EQ(SSL_CTX_get_cert_store:ctx.md5 == ['1']) :False
+EQ(SSL_CTX_get_cert_store:ctx.md5 == ['1'])
+Checking equation
+EQ(SSL_CTX_get_cert_store:ctx.md5 == ['0']) :True
+EQ(SSL_CTX_get_cert_store:ctx.md5 == ['0'])
+Checking equation
+EQ(SSL_write:s.ext.psk_kex_mode >= ['30']) :True
+EQ(SSL_write:s.ext.psk_kex_mode >= ['30'])
 
 Verifying Order...
+ab(c)+dbe
+OrderedDict([('0', <State('0')@140678201799296>), ('1', <State('1')@140678201799584>), ('2', <State('2')@140678201801552>), ('3', <State('3')@140678200896144>), ('4', <State('4')@140678200896096>), ('5', <State('5')@140678200893888>), ('6', <State('6')@140678201966544>)]), {0: {'a': 1}, 1: {'b': 2}, 2: {'c': 3}, 3: {'c': 3, 'd': 4}, 4: {'b': 5}, 5: {'e': 6}, 6: {}}
+
 a   1
 b   2
 c   3
@@ -101,7 +149,12 @@ c   3
 d   4
 b   5
 e   6
-ab(c)+dbe
+
+Verifying Forbidden API...
+['c', 'd']
+Forbidden API SSL_CTX_get_cert_store() is used
+Forbidden API SSL_CTX_get_cert_store() is used
+Forbidden API SSL_new() is used
 
 ```
 
@@ -110,10 +163,12 @@ ab(c)+dbe
 - [x] Build a state machine based on order.
 - [x] Implement log\_parser and extract list of objects and parameters.
 - [x] Verify Order rules
+- [x] Implement Operations for constraint check (EQ, RAND, PRIME, REPLAY)
+- [x] Implement Forbidden API suppot in rules
 ## TODO
 - [-] Identify Final state in order verification
-- [-] Implement Operations for constraint check (EQ, RAND, PRIME, REPLAY, PASS)
 - [-] Add support of return value
+- [-] Implement better version of RAND and PASS
 
 **Free Software, Hell Yeah!**
 
