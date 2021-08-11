@@ -98,6 +98,7 @@ class parseLogs:
         text = StringStart() + SkipTo(sections | StringEnd())
         doc = Optional(text) + ZeroOrMore(sections)
         svar = doc.parseString(obj[0])
+        print(f"object: {fname}()")
         if 'struct' in obj[0]:
             self.__parseStruct(fname, svar.snames[0].asList()[0])
         if 'ptype' in obj[0]:

@@ -6,7 +6,8 @@ OBJECTS
 	e: SSL_write(s, buf, num)
 
 ORDER
-	ab(c)+dbe
+	ab(c)+db
+	(ab)*
 
 CONSTRAINTS
 	PRIME(a:meth.flags)

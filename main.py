@@ -3,29 +3,30 @@ from log_scanner import parseLogs
 
 # Parse Logs
 L = parseLogs()
-print("\nParsing Logs...")
+print("\n=>PARSING LOGS...")
 L.parse('log.txt')
 LObj = L.getObjects()
 #for k in LObj:
 #    print(k)
 
 # Parse Rule file/s
+print("\n=>PARSING RULES...")
 R = parseRules()
 R.parse("rules")
 Obj = R.getObjects()
-print("\nLoading Objects...")
+print("\n==>LOADING OBJECTS...")
 for k, v in Obj.items():
     print(f"{k}")
 
 # Extract Constraints and verify
 C = R.getConstraints()
-print("\nVerifying Constraints...")
+print("\n=>VERIFYING CONSTRAINTS...")
 for opr in C:
     opr.verify(LObj)
     print(opr)
 
 # Extract Order and verify
-print("\nVerifying Order...")
+print("\n=>VERIFYING ORDER...")
 O = R.getOrder()
 print("i/p state")
 for order in O:
@@ -33,7 +34,7 @@ for order in O:
     order.verify(LObj)
 
 # Extract Forbidden and verify
-print("\nVerifying Forbidden API...")
+print("\n=>VERIFYING FORBIDDEN API...")
 F = R.getForbidden()
 print(F)
 F.verify(LObj)

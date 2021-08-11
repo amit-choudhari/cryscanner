@@ -57,9 +57,12 @@ Reading symbols from openssl...
 This command will capture the runtime logs in log.txt
 Run main.py
 ```
-Parsing Logs...
+=>PARSING LOGS...
+object: SSL_CTX_new()
 meth
+object: OPENSSL_init_ssl()
 settings
+object: SSL_CTX_get_cert_store()
 ctx
 stats
 ex_data
@@ -70,6 +73,7 @@ ssl_mac_pkey_id
 ssl_cipher_methods
 ssl_digest_methods
 ssl_mac_secret_size
+object: SSL_CTX_get_cert_store()
 ctx
 stats
 ex_data
@@ -80,6 +84,7 @@ ssl_mac_pkey_id
 ssl_cipher_methods
 ssl_digest_methods
 ssl_mac_secret_size
+object: SSL_new()
 ctx
 stats
 ex_data
@@ -90,6 +95,8 @@ ssl_mac_pkey_id
 ssl_cipher_methods
 ssl_digest_methods
 ssl_mac_secret_size
+object: OPENSSL_init_ssl()
+object: SSL_write()
 s
 statem
 s3
@@ -100,24 +107,28 @@ ex_data
 ext
 ocsp
 srp_ctx
+
+=>PARSING RULES...
 trigger=a, source=0, dest=1
 trigger=b, source=1, dest=2
 trigger=c, source=2, dest=3
 trigger=c, source=3, dest=3
 trigger=d, source=3, dest=4
 trigger=b, source=4, dest=5
-trigger=e, source=5, dest=6
-['0', '1', '2', '3', '4', '5', '6']
+['0', '1', '2', '3', '4', '5']
+trigger=a, source=0, dest=1
+trigger=b, source=1, dest=0
+['0', '1']
 ['c', 'd']
 
-Loading Objects...
+==>LOADING OBJECTS...
 a
 b
 c
 d
 e
 
-Verifying Constraints...
+=>VERIFYING CONSTRAINTS...
 Checking Prime
 PRIME(SSL_CTX_new:meth.flags  ) 2067337:True
 PRIME(SSL_CTX_new:meth.flags  )
@@ -137,18 +148,22 @@ Checking equation
 EQ(SSL_write:s.ext.psk_kex_mode >= ['30']) :True
 EQ(SSL_write:s.ext.psk_kex_mode >= ['30'])
 
-Verifying Order...
+=>VERIFYING ORDER...
 i/p state
+['a', 'b', 'c', 'c', 'd', 'b']
 a   1
 b   2
 c   3
 c   3
 d   4
 b   5
-e   6
-Accepting state: 6
+Accepting state: 5
+['a', 'b', 'b']
+a   1
+b   0
+Failed Order- current state:0 trigger:b final:{0}
 
-Verifying Forbidden API...
+=>VERIFYING FORBIDDEN API...
 ['c', 'd']
 Forbidden API SSL_CTX_get_cert_store() is used
 Forbidden API SSL_CTX_get_cert_store() is used
