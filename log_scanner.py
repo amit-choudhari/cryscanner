@@ -44,7 +44,11 @@ class parseLogs:
         sname = sname_t.parseString(struct_var)[0]
         print(sname)
 
-        vlist = self.__flattenStruct(sname_t, struct_var)
+        try:
+            vlist = self.__flattenStruct(sname_t, struct_var)
+        except Exception as e:
+            print(e)
+            return
 
         nested = False
         dot = f'.' if prefix else f''
@@ -73,7 +77,6 @@ class parseLogs:
         for k in svar:
             pass
         '''
-        pass
 
     def __parseObjects(self, obj):
         # For every object fname
