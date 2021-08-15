@@ -1,4 +1,5 @@
 from object import Object 
+import randtest
 import sympy
 
 class Constraint:
@@ -46,8 +47,20 @@ class Constraint:
     def __checkRand(self, LObj):
         # TODO Better implementation of Randomness
         # comparing different instance of same variable
+        rand_list = []
         print("Checking Rand")
-        self.__checkReplay(LObj)
+        for k in LObj:
+            if k.getfname() == self.Object.getfname():
+                #values.append(int(k.getVar(self.operand)))
+                print(k.getfname(), self.operand)
+                try:
+                    print(k.getVar(self.operand))
+                    rand_list.append(int(k.getVar(self.operand),0))
+                except:
+                    print("Failed to get value")
+
+        res = randtest.random_score(rand_list)
+        print("randomness res:",res)
 
     def __checkPassword(self):
         # TODO Implement something like 

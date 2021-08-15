@@ -25,13 +25,12 @@ class parseLogs:
         #for x in self.m_obj:
         if x.getfname() == fname:
             x.addVar(d_var)
-            #print(x.getVar(k_var))
-            #print(x)
+            print(x.getVar(k_var))
+            print(k_var)
         else:
             print("[ERROR]: OUT OF ORDER")
 
     def __parseArray(self, fname, v, prefix):
-        #print(v)
         LPAR,RPAR = map(Suppress, "{}")
         value = (originalTextFor(OneOrMore(Word(printables, excludeChars="{},"))))
         aname_t = Word(printables) + Suppress(Literal('='))
@@ -72,18 +71,18 @@ class parseLogs:
         # recursively find structures
         braces = ['{', '}']
         for v in vlist:
+            print("VARS ",v)
             if '=' not in v:
                 continue
             # TODO add support for Arrays of struct
             if '{{' in v:
                 continue
             # Parse array of ints
-            if re.match(r'{(.*)}',v):
+            if re.match(r'(.*){(.*)}',v):
                 self.__parseArray(fname, v, prefix)
             # Parse nested struct
-            if '{' in v:
+            elif '{' in v:
                 self.__parseStruct(fname, v, prefix)
-                nested = False
             else:
                 self.__parseVariables(fname, v, prefix)
             pass
