@@ -9,6 +9,7 @@ class parseLogs:
     def __str__(self):
         pass
     
+    # All Variables are finally parsed here and added to the object
     def __parseVariables(self, fname, pvar, prefix=''):
         #print(pvar)
         var_t = Word(printables) + Suppress(Literal('=')) + OneOrMore(Word(printables))
@@ -28,6 +29,20 @@ class parseLogs:
             #print(x)
         else:
             print("[ERROR]: OUT OF ORDER")
+
+    def __parseArray(self, fname, v, prefix):
+        #print(v)
+        LPAR,RPAR = map(Suppress, "{}")
+        value = (originalTextFor(OneOrMore(Word(printables, excludeChars="{},"))))
+        aname_t = Word(printables) + Suppress(Literal('='))
+        arr_t = Suppress(aname_t) + LPAR + delimitedList(value) + RPAR
+        aname = aname_t.parseString(v)[0]
+        avalue = arr_t.parseString(v)
+        val = '0x' + ''.join([format(int(c, 0), '02X') for c in reversed(avalue)])
+        arr_str = aname + ' = ' + val
+        self.__parseVariables(fname, arr_str, prefix)
+
+
 
     def __flattenStruct(self, sname_t, struct_var):
         # extract struct elements (except nested structs)
@@ -55,16 +70,18 @@ class parseLogs:
         prefix = f'{prefix}{dot}{sname}'
         # insert all extracted variables in Object
         # recursively find structures
+        braces = ['{', '}']
         for v in vlist:
             if '=' not in v:
                 continue
-            # TODO add support for Arrays
+            # TODO add support for Arrays of struct
             if '{{' in v:
                 continue
+            # Parse array of ints
+            if re.match(r'{(.*)}',v):
+                self.__parseArray(fname, v, prefix)
+            # Parse nested struct
             if '{' in v:
-                nested = True
-            #print('v: ',v)
-            if nested:
                 self.__parseStruct(fname, v, prefix)
                 nested = False
             else:
@@ -103,9 +120,11 @@ class parseLogs:
         svar = doc.parseString(obj[0])
         print(f"object: {fname}()")
         if 'struct' in obj[0]:
-            self.__parseStruct(fname, svar.snames[0].asList()[0])
+            for s in svar.snames:
+                self.__parseStruct(fname, s.asList()[0])
         if 'ptype' in obj[0]:
-            self.__parseVariables(fname, svar.pnames[0].asList()[0])
+            for p in svar.pnames:
+                self.__parseVariables(fname, p.asList()[0])
 
         pass
 

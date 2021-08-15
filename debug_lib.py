@@ -4,7 +4,8 @@ import gdb.printing
 import time
 import os
 
-apis = ['rsa_keygen', 'SSL_CTX_get_cert_store', 'RSA_generate_multi_prime_key', 'SSL_accept', 'SSL_write', 'SSL_new', 'SSL_CTX_new', 'SSL_get_session', 'SSL_get_client_random', 'SSL_SESSION_get_master_key', 'SSL_get_ex_new_index', 'SSL_CTX_use_certificate', 'SSL_CTX_use_certificate', 'SSL_CTX_check_private_key', 'SSL_CTX_use_PrivateKey', 'OPENSSL_init_ssl' ];
+apis = ['EVP_CIPHER_CTX_new', 'EVP_CIPHER_CTX_cleanup', 'EVP_BytesToKey', 'EVP_EncryptInit_ex', 'EVP_DecryptInit_ex', 'EVP_CIPHER_CTX_reset']
+apis_ = ['rsa_keygen', 'SSL_CTX_get_cert_store', 'RSA_generate_multi_prime_key', 'SSL_accept', 'SSL_write', 'SSL_new', 'SSL_CTX_new', 'SSL_get_session', 'SSL_get_client_random', 'SSL_SESSION_get_master_key', 'SSL_get_ex_new_index', 'SSL_CTX_use_certificate', 'SSL_CTX_use_certificate', 'SSL_CTX_check_private_key', 'SSL_CTX_use_PrivateKey', 'OPENSSL_init_ssl' ];
 
 class SimpleCommand(gdb.Command):
         fo=open("log.txt","w+")
@@ -38,58 +39,53 @@ class SimpleCommand(gdb.Command):
 
         def parse_args(self):
             line = self.fi.readline()
-            while(line != ''):
-                if '=> INFO ARGS-END' in line:
-                    break
-                arg = line.split(' =')[0]
-                s = "ptype "+arg
-                gdb.execute("set logging off")
-                ft = open("tmp_scratch.txt", "w+")
-                gdb.execute("set logging file tmp_scratch.txt")
-                gdb.execute("set logging on")
-                gdb.execute(s)
-                gdb.execute("set logging off")
-                gdb.execute("set logging file log.txt")
-
-                gdb.execute("set logging on")
-                tmp_line = ft.readline()
-                if 'struct' in tmp_line:
-                    while(tmp_line != ''):
-                        check_line = tmp_line
-                        tmp_line = ft.readline()
-                    print ('struct '+arg)
-                    if '} *' in check_line:
-                        s1 = 'print *' +arg
+            try:
+                while(line != ''):
+                    if '=> INFO ARGS-END' in line:
+                        break
+                    arg = line.split(' =')[0]
+                    s = "ptype "+arg
+                    gdb.execute("set logging off")
+                    ft = open("tmp_scratch.txt", "w+")
+                    gdb.execute("set logging file tmp_scratch.txt")
+                    gdb.execute("set logging on")
+                    gdb.execute(s)
+                    gdb.execute("set logging off")
+                    gdb.execute("set logging file log.txt")
+             
+                    gdb.execute("set logging on")
+                    tmp_line = ft.readline()
+                    if 'struct' in tmp_line:
+                        while(tmp_line != ''):
+                            check_line = tmp_line
+                            tmp_line = ft.readline()
+                        print ('struct '+arg)
+                        if '} *' in check_line:
+                            s1 = 'print/x *' +arg
+                        else:
+                            s1 = 'print/x ' +arg
+                        try:
+                            gdb.execute(s1)
+                        except:
+                            pass
+             
                     else:
-                        s1 = 'print ' +arg
-                    try:
-                        gdb.execute(s1)
-                    except:
-                        pass
-
-                else:
-                    s1 = 'print '+arg
-                    print (s+' '+line)
-                line = self.fi.readline()
+                        s1 = 'print/x '+arg
+                        print (s+' '+line)
+                    line = self.fi.readline()
+            except:
+                pass
 
             gdb.execute("set logging off")
             gdb.execute("set logging file scratch.txt")
             gdb.execute("set logging on")
-
-            # print(data)                 
-            # data = self.fi.readline()
-            # self.fo.write('### reading file scratch ##')
-            # for x in data:
-            #     self.fo.write(x)
-            # self.fo.write('## close reading file scratch')
-            # for x in f:
-            #     print(x)
 
         def invoke(self, arg, from_tty):
             # when we call simple_command from gdb, this method
             # is invoked
             gdb.execute("set logging file scratch.txt")
             gdb.execute("set print pretty on")
+            gdb.execute("set print repeats 0")
             print("Hello from simple_command")
             gdb.execute('start')
 
