@@ -1,5 +1,6 @@
 from object import Object 
-import randtest
+from nistrng import *
+import numpy
 import sympy
 
 class Constraint:
@@ -44,11 +45,32 @@ class Constraint:
                     print(f'Failed {int(k.getVar(self.operand),0)}')
         print(f'{self.__str__()} :{res}')
 
+    def __randtestNIST(self, binary_sequence):
+        print("Random sequence encoded in 8-bit signed format:")
+        print(binary_sequence)
+        # Check the eligibility of the test and generate an eligible battery from the default NIST-sp800-22r1a battery
+        eligible_battery: dict = check_eligibility_all_battery(binary_sequence, SP800_22R1A_BATTERY)
+        # Print the eligible tests
+        print("Eligible test from NIST-SP800-22r1a:")
+        for name in eligible_battery.keys():
+            print("-" + name)
+        # Test the sequence on the eligible tests
+        results = run_all_battery(binary_sequence, eligible_battery, False)
+        # Print results one by one
+        print("Test results:")
+        for result, elapsed_time in results:
+            if result.passed:
+                print("- PASSED - score: " + str(numpy.round(result.score, 3)) + " - " + result.name + " - elapsed time: " + str(elapsed_time) + " ms")
+            else:
+                print("- FAILED - score: " + str(numpy.round(result.score, 3)) + " - " + result.name + " - elapsed time: " + str(elapsed_time) + " ms")
+
+
+    # Test randomness using NIST SP800-22
     def __checkRand(self, LObj):
-        # TODO Better implementation of Randomness
-        # comparing different instance of same variable
         rand_list = []
+        sequence = []
         print("Checking Rand")
+        i = 0
         for k in LObj:
             if k.getfname() == self.Object.getfname():
                 #values.append(int(k.getVar(self.operand)))
@@ -58,9 +80,11 @@ class Constraint:
                     rand_list.append(int(k.getVar(self.operand),0))
                 except:
                     print("Failed to get value")
-
-        res = randtest.random_score(rand_list)
-        print("randomness res:",res)
+        # unpack to single binary array
+        for x in rand_list:
+            print(x)
+            sequence.extend([int(d) for d in str(bin(x))[2:]])
+        self.__randtestNIST(numpy.array(sequence))
 
     def __checkPassword(self):
         # TODO Implement something like 

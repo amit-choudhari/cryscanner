@@ -1,20 +1,11 @@
 OBJECTS
-	a: SSL_CTX_new(meth)
-	b: OPENSSL_init_ssl(opts, settings)
-	c: SSL_CTX_get_cert_store(ctx)
-	d: SSL_new(ctx)
-	e: SSL_write(s, buf, num)
+	a: EVP_CIPHER_CTX_new()
+	b: EVP_CIPHER_CTX_reset(c)
 
 ORDER
-	ab(c)+db
-	(ab)*
+	a(a*b*)*b
 
 CONSTRAINTS
-	PRIME(a:meth.flags)
-	RAND(c:ctx.sha1)
-	EQ(c:ctx.md5 == 1)
-	EQ(c:ctx.md5 == 0)
-	EQ(e:s.ext.psk_kex_mode >= 30)
+	RAND(b:c.oiv)
 
 FORBIDDEN
-	c,d
