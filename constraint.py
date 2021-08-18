@@ -45,7 +45,13 @@ class Constraint:
                     print(f'Failed {int(k.getVar(self.operand),0)}')
         print(f'{self.__str__()} :{res}')
 
-    def __randtestNIST(self, binary_sequence):
+    def __randtestNIST(self, rand_list):
+        binary_sequence = []
+        # unpack to single binary array
+        for x in rand_list:
+            print(x)
+            binary_sequence.extend([int(d) for d in str(bin(x))[2:]])
+        binary_sequence = numpy.array(binary_sequence)
         print("Random sequence encoded in 8-bit signed format:")
         print(binary_sequence)
         # Check the eligibility of the test and generate an eligible battery from the default NIST-sp800-22r1a battery
@@ -68,7 +74,6 @@ class Constraint:
     # Test randomness using NIST SP800-22
     def __checkRand(self, LObj):
         rand_list = []
-        sequence = []
         print("Checking Rand")
         i = 0
         for k in LObj:
@@ -80,11 +85,7 @@ class Constraint:
                     rand_list.append(int(k.getVar(self.operand),0))
                 except:
                     print("Failed to get value")
-        # unpack to single binary array
-        for x in rand_list:
-            print(x)
-            sequence.extend([int(d) for d in str(bin(x))[2:]])
-        self.__randtestNIST(numpy.array(sequence))
+        self.__randtestNIST(rand_list)
 
     def __checkPassword(self):
         # TODO Implement something like 

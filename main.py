@@ -1,10 +1,12 @@
 from rule_scanner import parseRules
 from log_scanner import parseLogs
 
+RULES = "rules"
+LOGS = "log.txt"
 # Parse Logs
 L = parseLogs()
 print("\n=>PARSING LOGS...")
-L.parse('log.txt')
+L.parse(LOGS)
 LObj = L.getObjects()
 #for k in LObj:
 #    print(k)
@@ -12,7 +14,7 @@ LObj = L.getObjects()
 # Parse Rule file/s
 print("\n=>PARSING RULES...")
 R = parseRules()
-R.parse("rules")
+R.parse(RULES)
 Obj = R.getObjects()
 print("\n==>LOADING OBJECTS...")
 for k, v in Obj.items():
