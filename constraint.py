@@ -98,7 +98,7 @@ class Constraint:
         res = True
 
         if self.rhs[0].isnumeric():
-            rhs = int(self.rhs[0],0)
+            rhs = [int(i,0) for i in self.rhs]
         else:
             rhs = self.rhs
 
@@ -133,7 +133,8 @@ class Constraint:
                     #print(f'Pass {lhs} >= {self.rhs[0]}')
                     pass
             elif self.eq == '==':
-                if lhs != rhs:
+                if lhs not in rhs:
+                    print(rhs)
                     self.res = False
                 else:
                     #print(f'Pass {lhs} == {self.rhs[0]}')
