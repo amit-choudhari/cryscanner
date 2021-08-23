@@ -1,0 +1,18 @@
+OBJECTS
+	a: EVP_CIPHER_CTX_new()
+	b: EVP_CIPHER_CTX_free(c)
+  	c: EVP_EncryptInit_ex()
+  	d: EVP_EncryptUpdate()
+  	e: EVP_EncryptFinal_ex();
+  	f: EVP_DecryptInit_ex()
+  	g: EVP_DecryptUpdate()
+  	h: EVP_DecryptFinal_ex();
+
+ORDER
+	(ab)*
+	(cd+ed*)*
+	(fg+h)*
+
+CONSTRAINTS
+
+FORBIDDEN

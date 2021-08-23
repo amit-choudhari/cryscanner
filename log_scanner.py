@@ -25,8 +25,8 @@ class parseLogs:
         #for x in self.m_obj:
         if x.getfname() == fname:
             x.addVar(d_var)
-            print(x.getVar(k_var))
-            print(k_var)
+            #print(x.getVar(k_var))
+            #print(k_var)
         else:
             print("[ERROR]: OUT OF ORDER")
 
@@ -71,7 +71,6 @@ class parseLogs:
         # recursively find structures
         braces = ['{', '}']
         for v in vlist:
-            print("VARS ",v)
             if '=' not in v:
                 continue
             # TODO add support for Arrays of struct

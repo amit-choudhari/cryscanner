@@ -43,6 +43,8 @@ class StateMachine(object):
                 print(i,' ',self.state)
             if int(self.state) in self.finals:
                 print("Accepting state:",self.state)
+            else:
+                print(f"Failed Order- current state:{self.state} trigger:{i} final:{self.finals}")
          
             self.get_graph().draw('my_state_diagram.png', prog='dot')
             #print(FSM.get_model_state())
