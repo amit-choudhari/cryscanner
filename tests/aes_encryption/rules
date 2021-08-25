@@ -3,10 +3,11 @@ OBJECTS
 	b: EVP_CIPHER_CTX_free(c)
   	c: EVP_EncryptInit_ex()
   	d: EVP_EncryptUpdate()
-  	e: EVP_EncryptFinal_ex();
+  	e: EVP_EncryptFinal_ex()
   	f: EVP_DecryptInit_ex()
   	g: EVP_DecryptUpdate()
-  	h: EVP_DecryptFinal_ex();
+  	h: EVP_DecryptFinal_ex()
+	i: EVP_BytesToKey()
 
 ORDER
 	(ab)*
@@ -14,5 +15,11 @@ ORDER
 	(fg+h)*
 
 CONSTRAINTS
+	REPLAY(i:salt)
+	RAND(i:salt)
+	REPLAY(c:key)
+	RAND(c:key)
+	REPLAY(f:key)
+	RAND(f:key)
 
 FORBIDDEN

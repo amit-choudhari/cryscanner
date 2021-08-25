@@ -102,7 +102,8 @@ class parseLogs:
         
         sname_marker = LineStart() + Literal('struct')
         pname_marker = LineStart() + Literal('ptype')
-        markers = sname_marker ^ pname_marker
+        array_marker = LineStart() + Literal('array')
+        markers = sname_marker ^ pname_marker ^ array_marker
 
         
         sname_section = Group(
@@ -111,8 +112,11 @@ class parseLogs:
         pname_section = Group(
                     Suppress(pname_marker + Word(printables)) + SkipTo(markers | stringEnd).setResultsName('pname')
                     ).setResultsName('pnames', listAllMatches=True)
+        aname_section = Group(
+                    Suppress(array_marker)+ Word(printables) + Suppress(Word(printables))+ SkipTo(markers).setResultsName('aname')
+                    ).setResultsName('anames', listAllMatches=True)
 
-        sections = sname_section ^ pname_section
+        sections = sname_section ^ pname_section ^ aname_section
         text = StringStart() + SkipTo(sections | StringEnd())
         doc = Optional(text) + ZeroOrMore(sections)
         svar = doc.parseString(obj[0])
@@ -123,6 +127,9 @@ class parseLogs:
         if 'ptype' in obj[0]:
             for p in svar.pnames:
                 self.__parseVariables(fname, p.asList()[0])
+        if 'array' in obj[0]:
+            st = svar.anames[0].asList()[0]+svar.anames[0].asList()[1]
+            self.__parseArray(fname, st, '')
 
         pass
 

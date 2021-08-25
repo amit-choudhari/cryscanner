@@ -53,7 +53,7 @@ class Constraint:
             binary_sequence.extend([int(d) for d in str(bin(x))[2:]])
         binary_sequence = numpy.array(binary_sequence)
         print("Random sequence encoded in 8-bit signed format:")
-        print(binary_sequence)
+        print(binary_sequence[:50])
         # Check the eligibility of the test and generate an eligible battery from the default NIST-sp800-22r1a battery
         eligible_battery: dict = check_eligibility_all_battery(binary_sequence, SP800_22R1A_BATTERY)
         # Print the eligible tests
@@ -134,7 +134,6 @@ class Constraint:
                     pass
             elif self.eq == '==':
                 if lhs not in rhs:
-                    print(rhs)
                     self.res = False
                 else:
                     #print(f'Pass {lhs} == {self.rhs[0]}')

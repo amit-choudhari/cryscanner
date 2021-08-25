@@ -93,7 +93,7 @@ int encrypt(unsigned int *salt, char *input, unsigned char **ciphertext, int *le
   en = EVP_CIPHER_CTX_new();
 
   /* gen key and iv. init the cipher ctx object */
-  if (aes_init(key_data, key_data_len, (unsigned char *)&salt, en, key, iv)) {
+  if (aes_init(key_data, key_data_len, (unsigned char *)salt, en, key, iv)) {
     printf("Couldn't initialize AES cipher\n");
     return -1;
   }
@@ -115,7 +115,7 @@ int decrypt(unsigned int *salt, char *ciphertext, unsigned char **plaintext, int
   de = EVP_CIPHER_CTX_new();
 
   /* gen key and iv. init the cipher ctx object */
-  if (aes_init(key_data, key_data_len, (unsigned char *)&salt, de, key, iv)) {
+  if (aes_init(key_data, key_data_len, (unsigned char *)salt, de, key, iv)) {
     printf("Couldn't initialize AES cipher\n");
     return -1;
   }
