@@ -27,7 +27,7 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
    * nrounds is the number of times the we hash the material. More rounds are more secure but
    * slower.
    */
-  i = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), salt, key_data, key_data_len, nrounds, key, iv);
+  i = EVP_BytesToKey(EVP_aes_256_ecb(), EVP_sha1(), salt, key_data, key_data_len, nrounds, key, iv);
 
   if (i != 32) {
     printf("Key size is %d bits - should be 256 bits\n", i);
@@ -97,7 +97,7 @@ int encrypt(unsigned int *salt, char *input, unsigned char **ciphertext, int *le
     printf("Couldn't initialize AES cipher\n");
     return -1;
   }
-  EVP_EncryptInit_ex(en, EVP_aes_256_cbc(), NULL, key, iv);
+  EVP_EncryptInit_ex(en, EVP_aes_256_ecb(), NULL, key, iv);
 
   *len = strlen(input)+1;
   
@@ -119,7 +119,7 @@ int decrypt(unsigned int *salt, char *ciphertext, unsigned char **plaintext, int
     printf("Couldn't initialize AES cipher\n");
     return -1;
   }
-  EVP_DecryptInit_ex(de, EVP_aes_256_cbc(), NULL, key, iv);
+  EVP_DecryptInit_ex(de, EVP_aes_256_ecb(), NULL, key, iv);
 
   *plaintext = (char *)aes_decrypt(de, ciphertext, len);
 
