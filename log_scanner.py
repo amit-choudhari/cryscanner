@@ -56,7 +56,7 @@ class parseLogs:
         # extract struct name
         sname_t = Word(printables) + (Suppress(Literal('=')) | Suppress(LineEnd()))
         sname = sname_t.parseString(struct_var)[0]
-        print(sname)
+        #print(sname)
 
         try:
             vlist = self.__flattenStruct(sname_t, struct_var)
@@ -113,7 +113,7 @@ class parseLogs:
                     Suppress(pname_marker + Word(printables)) + SkipTo(markers | stringEnd).setResultsName('pname')
                     ).setResultsName('pnames', listAllMatches=True)
         aname_section = Group(
-                    Suppress(array_marker)+ Word(printables) + Suppress(Word(printables))+ SkipTo(markers).setResultsName('aname')
+                    Suppress(array_marker)+ Word(printables) + Suppress(Word(printables))+ SkipTo(markers | stringEnd).setResultsName('aname')
                     ).setResultsName('anames', listAllMatches=True)
 
         sections = sname_section ^ pname_section ^ aname_section
@@ -128,8 +128,14 @@ class parseLogs:
             for p in svar.pnames:
                 self.__parseVariables(fname, p.asList()[0])
         if 'array' in obj[0]:
-            st = svar.anames[0].asList()[0]+svar.anames[0].asList()[1]
-            self.__parseArray(fname, st, '')
+            i =0
+            #print("####",svar.anames)
+            st =[]
+            for item in svar.anames:
+                st.append(item[0]+item[1])
+            #st = svar.anames[0].asList()[0]+svar.anames[0].asList()[1]
+            for arr in st:
+                self.__parseArray(fname, arr, '')
 
         pass
 
