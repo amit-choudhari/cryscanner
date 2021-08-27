@@ -10,7 +10,8 @@ apis_ = ['rsa_keygen', 'SSL_CTX_get_cert_store', 'RSA_generate_multi_prime_key',
 class SimpleCommand(gdb.Command):
         fo=open("log.txt","w+")
         fi=open("scratch.txt", "w+")
-        def __init__(self):
+        def __init__(self, itrr):
+            self.itrr = itrr
             super(SimpleCommand, self).__init__("simple_command", gdb.COMMAND_USER)
 	
         def print_args(self):
@@ -83,65 +84,68 @@ class SimpleCommand(gdb.Command):
         def invoke(self, arg, from_tty):
             # when we call simple_command from gdb, this method
             # is invoked
-            gdb.execute("set logging file scratch.txt")
-            gdb.execute("set print pretty on")
-            gdb.execute("set print repeats 0")
-            print("Hello from simple_command")
-            gdb.execute('start')
-
-            # Add breakpoints
-            for api in apis:
-                bp = gdb.Breakpoint(api)
-            print('')
-            print('=> BREAKPOINT END')
-
-            logging.basicConfig(filename="scratch.txt", level=logging.INFO)
-
-            while True:
-                gdb.execute("set logging on")
-                # TODO fix finish command
-                #gdb.execute("finish")
-                gdb.execute("continue")
-
-                line = self.fi.readline()
-                inferiors = gdb.inferiors()
-                test = 0
-                for inf in gdb.inferiors():
-                    print('INF PROC'+str(inf.pid))
-                    if inf.pid:
-                        print('Continue')
-                    else:
-                        print('EXIT!!')
-                        test = 1
-                if test == 1:
-                    break
-                # TODO: Note the api called and i/p params
-                #   TODO: Fetch different types of parameters
-                #       like structs, pointer to structs.
-                # TODO: Find a way to get output arguments.
-                # TODO: Push to log file
-                print('=> BREAKPOINT HIT!!')
-                print('=> Backtrace')
-                gdb.execute('backtrace')
-                print('=> INFO ARGS-START')
-                gdb.execute('info args')
-                print('=> INFO ARGS-END')
-                gdb.execute('set logging off')
-                gdb.execute('set logging on')
-
-                print('=> BEFORE PARSE')
-                gdb.execute("set logging off")
-                gdb.execute("set logging on")
-
-                # consume all commands
-                # line = self.fi.readline()
-                while(line != ''):
-                    if 'INFO ARGS-START' in line:
-                        self.parse_args()
-                    if 'Backtrace' in line:
-                        self.parse_bt()
+            for x in range(self.itrr):
+                gdb.execute("set logging file scratch.txt")
+                gdb.execute("set print pretty on")
+                gdb.execute("set print repeats 0")
+                print("Hello from simple_command")
+                gdb.execute('start')
+             
+                # Add breakpoints
+                for api in apis:
+                    bp = gdb.Breakpoint(api)
+                print('')
+                print('=> BREAKPOINT END')
+             
+                logging.basicConfig(filename="scratch.txt", level=logging.INFO)
+             
+                while True:
+                    gdb.execute("set logging on")
+                    # TODO fix finish command
+                    #gdb.execute("finish")
+                    gdb.execute("continue")
+             
                     line = self.fi.readline()
-            print('=> AFTER CONSUMING COMMANDS')
-            gdb.execute("set logging off")
+                    inferiors = gdb.inferiors()
+                    test = 0
+                    for inf in gdb.inferiors():
+                        print('INF PROC'+str(inf.pid))
+                        if inf.pid:
+                            print('Continue')
+                        else:
+                            print('EXIT!!')
+                            test = 1
+                    if test == 1:
+                        break
+                    print('NEXT')
+                    gdb.execute('next')
+                    # TODO: Note the api called and i/p params
+                    #   TODO: Fetch different types of parameters
+                    #       like structs, pointer to structs.
+                    # TODO: Find a way to get output arguments.
+                    # TODO: Push to log file
+                    print('=> BREAKPOINT HIT!!')
+                    print('=> Backtrace')
+                    gdb.execute('backtrace')
+                    print('=> INFO ARGS-START')
+                    gdb.execute('info args')
+                    print('=> INFO ARGS-END')
+                    gdb.execute('set logging off')
+                    gdb.execute('set logging on')
+             
+                    print('=> BEFORE PARSE')
+                    gdb.execute("set logging off")
+                    gdb.execute("set logging on")
+             
+                    # consume all commands
+                    # line = self.fi.readline()
+                    while(line != ''):
+                        if 'INFO ARGS-START' in line:
+                            self.parse_args()
+                        if 'Backtrace' in line:
+                            self.parse_bt()
+                        line = self.fi.readline()
+                print('=> AFTER CONSUMING COMMANDS')
+                gdb.execute("set logging off")
 
-SimpleCommand()
+SimpleCommand(2)
