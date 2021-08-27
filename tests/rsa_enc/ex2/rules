@@ -1,0 +1,15 @@
+OBJECTS
+	a: RSA_public_encrypt()
+	b: RSA_private_decrypt()
+	c: RSA_generate_key()
+	d: EVP_PKEY_CTX_set_rsa_keygen_bits()
+	e: EVP_PKEY_CTX_set_rsa_padding()
+
+ORDER
+
+CONSTRAINTS
+	EQ(b:padding == 4)
+	EQ(e:pad_mode == 4)
+	EQ(d:bits >= 1024)
+
+FORBIDDEN

@@ -2,23 +2,30 @@ OBJECTS
 	a: EVP_CIPHER_CTX_new()
 	b: EVP_CIPHER_CTX_free(c)
   	c: EVP_EncryptInit_ex()
+  	k: EVP_CipherInit()
   	d: EVP_EncryptUpdate()
+  	m: EVP_CipherUpdate()
   	e: EVP_EncryptFinal_ex()
+  	n: EVP_CipherFinal()
   	f: EVP_DecryptInit_ex()
   	g: EVP_DecryptUpdate()
   	h: EVP_DecryptFinal_ex()
 	i: EVP_BytesToKey()
 	j: EVP_aes_256_ecb()
 	h: aes_ecb_cipher()
+	l: des_ecb_cipher()
 
 ORDER
 	(ab)*
 	(cd+ed*)*
+	(km+nm*)*
 	(fg+h)*
 
 CONSTRAINTS
 	REPLAY(i:salt)
 	REPLAY(c:iv)
+	REPLAY(k:iv)
+	REPLAY(k:key)
 	REPLAY(c:key)
 	REPLAY(f:key)
 	RAND(i:salt)
@@ -26,4 +33,4 @@ CONSTRAINTS
 	RAND(f:key)
 
 FORBIDDEN
-	h
+	h,l

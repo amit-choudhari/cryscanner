@@ -18,11 +18,10 @@ ORDER
 
 CONSTRAINTS
 	REPLAY(i:salt)
-	REPLAY(c:iv)
-	REPLAY(c:key)
-	REPLAY(f:key)
 	RAND(i:salt)
+	REPLAY(c:key)
 	RAND(c:key)
+	REPLAY(f:key)
 	RAND(f:key)
 
 FORBIDDEN
