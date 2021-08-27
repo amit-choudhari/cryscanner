@@ -55,7 +55,11 @@ class Constraint:
         print("Random sequence encoded in 8-bit signed format:")
         print(binary_sequence[:50])
         # Check the eligibility of the test and generate an eligible battery from the default NIST-sp800-22r1a battery
-        eligible_battery: dict = check_eligibility_all_battery(binary_sequence, SP800_22R1A_BATTERY)
+        try:
+            eligible_battery: dict = check_eligibility_all_battery(binary_sequence, SP800_22R1A_BATTERY)
+        except Exception as e:
+           print(e)
+           return
         # Print the eligible tests
         print("Eligible test from NIST-SP800-22r1a:")
         for name in eligible_battery.keys():
@@ -108,29 +112,29 @@ class Constraint:
             else:
                 continue
 
-            if self.eq == '<':
-                if lhs >= rhs:
-                    self.res = False
-                else:
-                    #print(f'Pass {lhs} < {self.rhs[0]}')
-                    pass
-            elif self.eq == '<=':
-                if lhs > rhs:
+            if self.eq == '<=':
+                if lhs > rhs[0]:
                     self.res = False
                 else:
                     #print(f'Pass {lhs} <= {self.rhs[0]}')
                     pass
-            elif self.eq == '>':
-                if lhs <= rhs:
+            elif self.eq == '<':
+                if lhs >= rhs[0]:
                     self.res = False
                 else:
-                    #print(f'Pass {lhs} > {self.rhs[0]}')
+                    #print(f'Pass {lhs} < {self.rhs[0]}')
                     pass
             elif self.eq == '>=':
-                if lhs < rhs:
+                if lhs < rhs[0]:
                     self.res = False
                 else:
                     #print(f'Pass {lhs} >= {self.rhs[0]}')
+                    pass
+            elif self.eq == '>':
+                if lhs <= rhs[0]:
+                    self.res = False
+                else:
+                    #print(f'Pass {lhs} > {self.rhs[0]}')
                     pass
             elif self.eq == '==':
                 if lhs not in rhs:
