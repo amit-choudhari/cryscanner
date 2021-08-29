@@ -1,0 +1,9 @@
+OBJECTS
+	a: C_EncryptInit()
+
+ORDER
+
+CONSTRAINTS
+	EQ(a:pMechanism.mechanism == 4225)
+
+FORBIDDEN
