@@ -1,0 +1,12 @@
+OBJECTS
+	a: C_GenerateKey()
+
+ORDER
+
+CONSTRAINTS
+	 val1: EQ(a:pTemplate[0].pValue == 1)
+	 val2: EQ(a:pTemplate[3].pValue == 1)
+	 val3: EQ(a:pTemplate[4].pValue == 1)
+     val4: EQV(val2 ^ val3)
+
+FORBIDDEN
