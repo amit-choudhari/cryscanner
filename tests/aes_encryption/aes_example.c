@@ -23,7 +23,7 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
   int i, nrounds = 5;
   
   /*
-   * Gen key & IV for AES 256 CBC mode. A SHA1 digest is used to hash the supplied key material.
+   * Gen key & IV for AES 256 ECB mode. A SHA1 digest is used to hash the supplied key material.
    * nrounds is the number of times the we hash the material. More rounds are more secure but
    * slower.
    */
@@ -33,14 +33,6 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
     printf("Key size is %d bits - should be 256 bits\n", i);
     return -1;
   }
-  /*
-  for(int i=0; i<32; i++)
-	  printf("%x",key[i]);
-  printf("\n");
-  for(int i=0; i<32; i++)
-	  printf("%x",iv[i]);
-  printf("\n");
-  */
 
   EVP_CIPHER_CTX_init(e_ctx);
 
@@ -123,7 +115,6 @@ int decrypt(unsigned int *salt, char *ciphertext, unsigned char **plaintext, int
 
   *plaintext = (char *)aes_decrypt(de, ciphertext, len);
 
-  EVP_CIPHER_CTX_free(de);
   return 0;
 }
 
@@ -154,7 +145,6 @@ int main(int argc, char **argv)
     free(ciphertext);
     free(plaintext);
   }
-  EVP_CIPHER_CTX *de = EVP_CIPHER_CTX_new();
 
   return 0;
 }
