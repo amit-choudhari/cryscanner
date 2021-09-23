@@ -26,24 +26,42 @@ class parseRules:
 
     def __parseConstraints(self, constraints):
         for line in constraints[0].splitlines():
-            Operation_t = oneOf('EQ RAND PRIME REPLAY PASSWORD') + Suppress(Literal('(')) 
-            Object_t = Suppress(Operation_t) + Word(alphanums+'_') + Suppress(Literal(':'))
-            Operand_t = Suppress(Object_t) + Word(alphanums+'_'+'.') 
 
+            Container_t = Optional(Word(alphanums)) + Suppress(Literal(':')) 
+            Operation_t = Suppress(Container_t)+oneOf('EQ RAND PRIME REPLAY PASSWORD EQV') + Suppress(Literal('(')) 
+
+            Container = Container_t.parseString(line)[0]
             Operation = Operation_t.parseString(line)[0]
-            Object = Object_t.parseString(line)[0]
-            Operand = Operand_t.parseString(line)[0]
+
             eq = ''
             rhs = ''
-            
-            if Operation == 'EQ':
-                eq_t = Suppress(Operand_t) + oneOf('> >= <= < ==')
+            lhs = ''
+            if Operation != 'EQV':
+                Object_t = Suppress(Operation_t) + Word(alphanums+'_') + Suppress(Literal(':'))
+                Operand_t = Suppress(Object_t) + Word(alphanums+'_'+'.[]') 
+                Object = Object_t.parseString(line)[0]
+                Operand = Operand_t.parseString(line)[0]
+                obj = self.m_obj[Object]
+                if Operation == 'EQ':
+                    eq_t = Suppress(Operand_t) + oneOf('> >= <= < ==')
+                    eq = eq_t.parseString(line)[0]
+                    rhs_t = Suppress(eq_t) + OneOrMore(Word(alphanums) + Suppress(Optional(oneOf('|| &&')))) +Suppress(Literal(')'))
+                    rhs = rhs_t.parseString(line)
+            elif Operation == 'EQV':
+                Object = ''
+                Operand = ''
+                lhs_t = Suppress(Operation_t) + Word(alphanums+'_')
+                eq_t = Suppress(lhs_t) + oneOf('& | ^')
+                rhs_t = Suppress(eq_t) + Word(alphanums+'_') + Suppress(Literal(')'))
+                lhs = lhs_t.parseString(line)[0]
                 eq = eq_t.parseString(line)[0]
-                rhs_t = Suppress(eq_t) + OneOrMore(Word(alphanums) + Suppress(Optional(oneOf('|| &&')))) +Suppress(Literal(')'))
-                rhs = rhs_t.parseString(line)
+                rhs = rhs_t.parseString(line)[0]
+
+            
                 #print(eq)
                 #print(rhs)
-            self.m_constraints.append(Constraint(Operation, self.m_obj[Object], Operand, eq, rhs))
+
+            self.m_constraints.append(Constraint(Container, Operation,  Operand, eq, rhs, lhs, obj))
                 
             #print(Operation)
             #print(Object)

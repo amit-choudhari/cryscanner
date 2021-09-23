@@ -128,15 +128,9 @@ void encryptDecrypt(
 		const int isSizeOK,
 		CK_BYTE_PTR vData, CK_ULONG vlen) 
 {
-	//char vData[32] = {'A','M','I','T','\0'};
 	char vEncryptedData[100] = {0};
 
 	CK_RV rv;
-/*
-	rv = C_GenerateRandom(hSession, (CK_BYTE_PTR)vData, sizeof(vData));
-	if (rv != CKR_OK)
-		goto exit;
-*/
 
 	const CK_MECHANISM mechanism = { mechanismType, NULL_PTR, 0 };
 	CK_MECHANISM_PTR pMechanism = (CK_MECHANISM_PTR)&mechanism;
@@ -191,26 +185,6 @@ void encryptDecrypt(
 			break;
 	}
 
-	// Single-part encryption
-#if 0
-	rv = C_EncryptInit(hSession,pMechanism,hKey);
-	if (rv != CKR_OK)
-		goto exit;
-	CK_ULONG ulEncryptedDataLen;
-	{
-		rv = C_Encrypt(hSession,(CK_BYTE_PTR)vData,sizeof(vData),NULL_PTR,&ulEncryptedDataLen);
-		if (rv != CKR_OK)
-			goto exit;
-		if ( isSizeOK ) {
-			rv = C_Encrypt(hSession,(CK_BYTE_PTR)vData,sizeof(vData),vEncryptedData,&ulEncryptedDataLen);
-			if (rv != CKR_OK)
-				goto exit;
-		} else {
-			fprintf(stderr,"C_Encrypt should fail with C_CKR_DATA_LEN_RANGE");
-		}
-	}
-#endif
-
 
 	// Single-part decryption
 	rv = C_DecryptInit(hSession,pMechanism,hKey);
@@ -226,7 +200,7 @@ void encryptDecrypt(
 			CHECK_RV;
 
 			for (int i = 0; i <20;i++)
-				fprintf(stderr,"%x",vDecryptedData[i]);
+				fprintf(stderr,"%x ",vDecryptedData[i]);
 		} else {
 			fprintf(stderr, "C_Decrypt should fail with CKR_ENCRYPTED_DATA_LEN_RANGE");
 		}
@@ -294,40 +268,14 @@ void aesWrapUnwrapGeneric(CK_MECHANISM_TYPE mechanismType, CK_SESSION_HANDLE hSe
 	if(wrappedPtr == NULL_PTR){
 		fprintf(stderr,"wrappedptr is NULL");
 	}
+    // Wrap the generic key
 	rv = C_WrapKey(hSession, &mechanism, hKey, hSecret, wrappedPtr, &wrappedLen);
 	CHECK_RV;
 	fprintf(stderr,"wrappedlen:%d  calc_len:%d\n",wrappedLen,rndKeyLen + 8 );
 
 	int blockSize = 0x10;
+    // Try to decrypt the wrapped key as DATA
 	encryptDecrypt(CKM_AES_CBC_PAD,blockSize,hSession,hKey,blockSize*NR_OF_BLOCKS_IN_TEST-1,1, wrappedPtr, wrappedLen);
-
-#if 0
-	CK_ATTRIBUTE nattribs[] = {
-		{ CKA_CLASS, &secretClass, sizeof(secretClass) },
-		{ CKA_KEY_TYPE, &genKeyType, sizeof(genKeyType) },
-		{ CKA_TOKEN, &bFalse, sizeof(bFalse) },
-		{ CKA_PRIVATE, &bTrue, sizeof(bTrue) },
-		{ CKA_ENCRYPT, &bFalse, sizeof(bFalse) },
-		{ CKA_DECRYPT, &bTrue, sizeof(bTrue) },
-		{ CKA_SIGN, &bFalse,sizeof(bFalse) },
-		{ CKA_VERIFY, &bTrue, sizeof(bTrue) }
-	};
-	CK_OBJECT_HANDLE hNew;
-
-	hNew = CK_INVALID_HANDLE;
-	rv = C_UnwrapKey(hSession, &mechanism, hKey, wrappedPtr, wrappedLen, nattribs, sizeof(nattribs)/sizeof(CK_ATTRIBUTE), &hNew);
-	CHECK_RV;
-	if (hNew == CK_INVALID_HANDLE){
-		fprintf(stderr, "Invalid handle");
-		goto exit;
-	}
-
-	free(wrappedPtr);
-	wrappedPtr = NULL_PTR;
-	rv = C_DestroyObject(hSession, hSecret);
-	CHECK_RV;
-#endif
-
 
 exit:
 	if (rv != CKR_OK) {
@@ -350,14 +298,14 @@ int main()
 	CK_UTF8CHAR_PTR m_userPin1;
 	CK_ULONG m_userPin1Length;
 
-        // Just make sure that we finalize any previous tests
-       	rv = C_Finalize(NULL_PTR);
+    // Just make sure that we finalize any previous tests
+    rv = C_Finalize(NULL_PTR);
 	if (rv != CKR_OK) { \
 		fprintf(stderr, "%s:%d\n",__func__, __LINE__);\
 	}
 
-        // Initialize the library and start the test.
-        rv = C_Initialize(NULL_PTR);
+    // Initialize the library and start the test.
+    rv = C_Initialize(NULL_PTR);
 	CHECK_RV;
 
 	slotID = 610184248;
@@ -367,35 +315,26 @@ int main()
 	m_userPin1Length = strlen((char*)m_userPin1);
 	memset(label, ' ', 32);
 	memcpy(label, "first", strlen("first"));
-        // Open read-write session
-        rv = C_OpenSession(slotID, CKF_SERIAL_SESSION | CKF_RW_SESSION, NULL_PTR, NULL_PTR, &hSession);
+    // Open read-write session
+    rv = C_OpenSession(slotID, CKF_SERIAL_SESSION | CKF_RW_SESSION, NULL_PTR, NULL_PTR, &hSession);
 	CHECK_RV;
 
 	rv = C_OpenSession(slotID, CKF_SERIAL_SESSION, NULL_PTR, NULL_PTR, &hSessionRO);
 	CHECK_RV;
 
-        // Login USER into the session so we can create a private objects
-        rv = C_Login(hSession,CKU_USER,m_userPin1,m_userPin1Length);
+    // Login USER into the session so we can create a private objects
+    rv = C_Login(hSession,CKU_USER,m_userPin1,m_userPin1Length);
 	CHECK_RV;
 
         CK_OBJECT_HANDLE hKey = CK_INVALID_HANDLE;
 
-        // Generate a session key.
-        /*rv = generateGenericKey(hSession,IN_SESSION,IS_PUBLIC,&hKey);
-	if (rv != CKR_OK) {
-		fprintf(stderr, "generic key failed\n");
-		goto exit;
-	}*/
-
-        hKey = CK_INVALID_HANDLE;
-        CK_OBJECT_HANDLE hKeyDes2 = CK_INVALID_HANDLE;
+    hKey = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE hKeyDes2 = CK_INVALID_HANDLE;
+    // Generate Wrap key with data decrypt permission
 	rv = generateAesKey(hSession,IN_SESSION,IS_PUBLIC,&hKey);
 	CHECK_RV;
 
-	//aesWrapUnwrapGeneric(CKM_AES_KEY_WRAP, hSession, hKey);
 	aesWrapUnwrapGeneric(CKM_AES_CBC_PAD, hSession, hKey);
-
-	//encryptDecrypt(CKM_AES_ECB,blockSize,hSessionRO,hKey,blockSize*NR_OF_BLOCKS_IN_TEST-1,1);
 	fprintf(stderr, "completed\n");
 
 exit:

@@ -4,26 +4,19 @@ OBJECTS
   	c: EVP_EncryptInit_ex()
   	d: EVP_EncryptUpdate()
   	e: EVP_EncryptFinal_ex()
-  	f: EVP_DecryptInit_ex()
-  	g: EVP_DecryptUpdate()
-  	h: EVP_DecryptFinal_ex()
 	i: EVP_BytesToKey()
-	j: EVP_aes_256_ecb()
 	h: aes_ecb_cipher()
 
 ORDER
 	(ab)*
 	(cd+ed*)*
-	(fg+h)*
 
 CONSTRAINTS
-	REPLAY(i:salt)
-	REPLAY(c:iv)
-	REPLAY(c:key)
-	REPLAY(f:key)
-	RAND(i:salt)
-	RAND(c:key)
-	RAND(f:key)
+	x1: REPLAY(i:salt)
+	x2: REPLAY(c:iv)
+	x3: REPLAY(c:key)
+	x5: RAND(i:salt)
+	x6: RAND(c:key)
 
 FORBIDDEN
 	h

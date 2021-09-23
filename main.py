@@ -57,7 +57,7 @@ def main(argv):
     profiler.enable()
     for opr in C:
         opr.verify(LObj)
-        print(opr)
+        # print(opr)
     profiler.disable()
     #profiler.print_stats()
     

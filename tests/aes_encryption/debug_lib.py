@@ -5,7 +5,7 @@ import time
 import os
 import cProfile
 
-apis = ['EVP_CIPHER_CTX_new', 'EVP_CIPHER_CTX_cleanup', 'EVP_BytesToKey', 'EVP_EncryptInit_ex', 'EVP_DecryptInit_ex', 'EVP_EncryptUpdate','EVP_EncryptFinal_ex','EVP_DecryptUpdate','EVP_DecryptFinal_ex','EVP_CIPHER_CTX_free', 'aes_ecb_cipher']
+apis = ['EVP_CIPHER_CTX_new', 'EVP_BytesToKey', 'EVP_EncryptInit_ex', 'EVP_EncryptUpdate','EVP_EncryptFinal_ex', 'EVP_CIPHER_CTX_free', 'aes_ecb_cipher']
 
 class SimpleCommand(gdb.Command):
         fo=open("log.txt","w+")
@@ -92,8 +92,8 @@ class SimpleCommand(gdb.Command):
             gdb.execute("set logging on")
 
         def invoke(self, arg, from_tty):
-            profiler = cProfile.Profile()
-            profiler.enable()
+            #profiler = cProfile.Profile()
+            #profiler.enable()
             # when we call simple_command from gdb, this method
             # is invoked
             for x in range(self.itrr):
@@ -159,7 +159,7 @@ class SimpleCommand(gdb.Command):
                         line = self.fi.readline()
                 print('=> AFTER CONSUMING COMMANDS')
                 gdb.execute("set logging off")
-            profiler.disable()
-            profiler.print_stats()
+            #profiler.disable()
+            #profiler.print_stats()
 
-SimpleCommand(20)
+SimpleCommand(1)

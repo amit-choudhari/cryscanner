@@ -4,6 +4,6 @@ OBJECTS
 ORDER
 
 CONSTRAINTS
-	EQ(a:pMechanism.mechanism == 4225)
+	x: EQ(a:pMechanism.mechanism == 4225)
 
 FORBIDDEN
