@@ -25,24 +25,27 @@ b. rule\_scanner.py: Parses the rules file to extracts the information on parame
 Below is a sample rule file.
 ```
 OBJECTS
-	a: SSL_CTX_new(meth)
-	b: OPENSSL_init_ssl(opts, settings)
-	c: SSL_CTX_get_cert_store(ctx)
-	d: SSL_new(ctx)
-	e: SSL_write(s, buf, num)
+	a: EVP\_CIPHER\_CTX\_new()
+	b: EVP\_CIPHER\_CTX\_free(c)
+  	c: EVP\_EncryptInit\_ex()
+  	d: EVP\_EncryptUpdate()
+  	e: EVP\_EncryptFinal\_ex()
+	i: EVP\_BytesToKey()
+	h: aes\_ecb\_cipher()
 
 ORDER
-	ab(c)+dbe
+	(ab)*
+	(cd+ed*)*
 
 CONSTRAINTS
-	PRIME(a:meth.flags)
-	RAND(c:ctx.sha1)
-	EQ(c:ctx.md5 == 1)
-	EQ(c:ctx.md5 == 0)
-	EQ(e:s.ext.psk_kex_mode >= 30)
+	x1: REPLAY(i:salt)
+	x2: REPLAY(c:iv)
+	x3: REPLAY(c:key)
+	x5: RAND(i:salt)
+	x6: RAND(c:key)
 
 FORBIDDEN
-	c,d
+	h
 ```
 
 ## Setup
@@ -57,69 +60,30 @@ Reading symbols from openssl...
 This command will capture the runtime logs in log.txt
 Run main.py
 ```
+RULES file is " tests/aes_encryption/rules
+LOGS file is " tests/aes_encryption/log.txt
+
 =>PARSING LOGS...
-object: SSL_CTX_new()
-meth
-object: OPENSSL_init_ssl()
-settings
-object: SSL_CTX_get_cert_store()
-ctx
-stats
-ex_data
-ext
-srp_ctx
-dane
-ssl_mac_pkey_id
-ssl_cipher_methods
-ssl_digest_methods
-ssl_mac_secret_size
-object: SSL_CTX_get_cert_store()
-ctx
-stats
-ex_data
-ext
-srp_ctx
-dane
-ssl_mac_pkey_id
-ssl_cipher_methods
-ssl_digest_methods
-ssl_mac_secret_size
-object: SSL_new()
-ctx
-stats
-ex_data
-ext
-srp_ctx
-dane
-ssl_mac_pkey_id
-ssl_cipher_methods
-ssl_digest_methods
-ssl_mac_secret_size
-object: OPENSSL_init_ssl()
-object: SSL_write()
-s
-statem
-s3
-tmp
-valid_flags
-dane
-ex_data
-ext
-ocsp
-srp_ctx
+object: EVP_CIPHER_CTX_new()
+object: EVP_BytesToKey()
+object: EVP_EncryptInit_ex()
+object: aes_ecb_cipher()
+...
+object: EVP_CIPHER_CTX_free()
+object: EVP_CIPHER_CTX_new()
 
 =>PARSING RULES...
 trigger=a, source=0, dest=1
-trigger=b, source=1, dest=2
-trigger=c, source=2, dest=3
-trigger=c, source=3, dest=3
-trigger=d, source=3, dest=4
-trigger=b, source=4, dest=5
-['0', '1', '2', '3', '4', '5']
-trigger=a, source=0, dest=1
 trigger=b, source=1, dest=0
 ['0', '1']
-['c', 'd']
+trigger=c, source=0, dest=1
+trigger=d, source=1, dest=2
+trigger=d, source=2, dest=2
+trigger=e, source=2, dest=3
+trigger=c, source=3, dest=1
+trigger=d, source=3, dest=3
+['0', '1', '2', '3']
+['h']
 
 ==>LOADING OBJECTS...
 a
@@ -127,50 +91,196 @@ b
 c
 d
 e
+i
+h
 
 =>VERIFYING CONSTRAINTS...
-Checking Prime
-PRIME(SSL_CTX_new:meth.flags  ) 2067337:True
-PRIME(SSL_CTX_new:meth.flags  )
-Checking Rand
 Checking Replay
-Pass 140737353809328
-Pass 129
-RAND(SSL_CTX_get_cert_store:ctx.sha1  ) :True
-RAND(SSL_CTX_get_cert_store:ctx.sha1  )
-Checking equation
-EQ(SSL_CTX_get_cert_store:ctx.md5 == ['1']) :False
-EQ(SSL_CTX_get_cert_store:ctx.md5 == ['1'])
-Checking equation
-EQ(SSL_CTX_get_cert_store:ctx.md5 == ['0']) :True
-EQ(SSL_CTX_get_cert_store:ctx.md5 == ['0'])
-Checking equation
-EQ(SSL_write:s.ext.psk_kex_mode >= ['30']) :True
-EQ(SSL_write:s.ext.psk_kex_mode >= ['30'])
+================================
+Failed 115791883479003231763365946972015206849224643720322487168446144838650348756653
+Failed 115791883479003231763365946972015206849224643720322486765513914036612612808365
+Failed 115791883479003231763365946972015206849224643720322486765569254268833741463213
+Failed 115791883479003231763365946972015206849224643720322486765753721709570836979373
+Failed 115791883479003231763365946972015206849224643720322486765882848918086803840685
+
+REPLAY(EVP\_BytesToKey:salt  ) :False
+================================
+
+Checking Replay
+================================
+Failed 69917253583556191692478147606208430964501388521261329726057961871917600211776
+Failed 69917253583556191692478147606208430964501388521261329726057961871917600211776
+Failed 69917253583556191692478147606208430964501388521261329726057961871917600211776
+
+REPLAY(EVP\_EncryptInit\_ex:iv  ) :False
+================================
+
+Checking Replay
+================================
+Failed 77688215761253394586589689082649976992149542878860393383156848977076460267380
+Failed 77688215761253394586589689082649976992149542878860393383156848977076460267380
+Failed 77688215761253394586589689082649976992149542878860393383156848977076460267380
+Failed 77688215761253394586589689082649976992149542878860393383156848977076460267380
+
+REPLAY(EVP\_EncryptInit\_ex:key  ) :False
+================================
+
+Checking Randomness
+================================
+EVP\_BytesToKey salt
+0xFFFFE23000000005555552800000000000000000000055550000BEEF0000DEAD
+EVP\_BytesToKey salt
+0xFFFFE23000000005555552800000000000000000000055550000BEEF0000DEAD
+EVP\_BytesToKey salt
+0xFFFFE23000000005555552800000000000000000000000020000BEEF0000DEAD
+EVP\_BytesToKey salt
+0xFFFFE23000000005555552800000000000000000000000020000BEEF0000DEAD
+EVP\_BytesToKey salt
+0xFFFFE23000000005555552800000000000000000000000050000BEEF0000DEAD
+EVP\_BytesToKey salt
+0xFFFFE23000000005555552800000000000000000000000050000BEEF0000DEAD
+EVP\_BytesToKey salt
+0xFFFFE230000000055555528000000000000000000000000F0000BEEF0000DEAD
+EVP\_BytesToKey salt
+0xFFFFE230000000055555528000000000000000000000000F0000BEEF0000DEAD
+EVP\_BytesToKey salt
+0xFFFFE23000000005555552800000000000000000000000160000BEEF0000DEAD
+EVP\_BytesToKey salt
+0xFFFFE23000000005555552800000000000000000000000160000BEEF0000DEAD
+115791883479003231763365946972015206849224643720322487168446144838650348756653
+115791883479003231763365946972015206849224643720322487168446144838650348756653
+115791883479003231763365946972015206849224643720322486765513914036612612808365
+115791883479003231763365946972015206849224643720322486765513914036612612808365
+115791883479003231763365946972015206849224643720322486765569254268833741463213
+115791883479003231763365946972015206849224643720322486765569254268833741463213
+115791883479003231763365946972015206849224643720322486765753721709570836979373
+115791883479003231763365946972015206849224643720322486765753721709570836979373
+115791883479003231763365946972015206849224643720322486765882848918086803840685
+115791883479003231763365946972015206849224643720322486765882848918086803840685
+Eligible test from NIST-SP800-22r1a:
+-monobit
+-frequency\_within\_block
+-longest\_run\_ones\_in\_a\_block
+-dft
+-non\_overlapping\_template\_matching
+-serial
+-approximate\_entropy
+-cumulative sums
+-random\_excursion
+-random\_excursion\_variant
+Test results:
+- FAILED - score: 0.0 - Monobit - elapsed time: 0 ms
+- FAILED - score: 0.0 - Frequency Within Block - elapsed time: 41 ms
+- FAILED - score: 0.0 - Longest Run Ones In A Block - elapsed time: 0 ms
+- FAILED - score: 0.002 - Discrete Fourier Transform - elapsed time: 13 ms
+- FAILED - score: 0.0 - Non Overlapping Template Matching - elapsed time: 129 ms
+- FAILED - score: 0.0 - Serial - elapsed time: 1253 ms
+- FAILED - score: 0.0 - Approximate Entropy - elapsed time: 662 ms
+- FAILED - score: 0.0 - Cumulative Sums - elapsed time: 166 ms
+- FAILED - score: 0.337 - Random Excursion - elapsed time: 21 ms
+- FAILED - score: 0.075 - Random Excursion Variant - elapsed time: 3 ms
+Randomness test Failed!
+================================
+
+Checking Randomness
+================================
+EVP\_EncryptInit\_ex key
+0xABC1F8CD602F8E314EC01E18919327CA2C37629FF77CD502FF6A3EF4442D2774
+EVP\_EncryptInit\_ex key
+0xABC1F8CD602F8E314EC01E18919327CA2C37629FF77CD502FF6A3EF4442D2774
+EVP\_EncryptInit\_ex key
+0xABC1F8CD602F8E314EC01E18919327CA2C37629FF77CD502FF6A3EF4442D2774
+EVP\_EncryptInit\_ex key
+0xABC1F8CD602F8E314EC01E18919327CA2C37629FF77CD502FF6A3EF4442D2774
+EVP\_EncryptInit\_ex key
+0xABC1F8CD602F8E314EC01E18919327CA2C37629FF77CD502FF6A3EF4442D2774
+77688215761253394586589689082649976992149542878860393383156848977076460267380
+77688215761253394586589689082649976992149542878860393383156848977076460267380
+77688215761253394586589689082649976992149542878860393383156848977076460267380
+77688215761253394586589689082649976992149542878860393383156848977076460267380
+77688215761253394586589689082649976992149542878860393383156848977076460267380
+Eligible test from NIST-SP800-22r1a:
+-monobit
+-frequency\_within\_block
+-runs
+-longest\_run\_ones\_in\_a\_block
+-dft
+-non\_overlapping\_template\_matching
+-serial
+-approximate\_entropy
+-cumulative sums
+-random\_excursion
+-random\_excursion\_variant
+Test results:
+- PASSED - score: 0.576 - Monobit - elapsed time: 1 ms
+- PASSED - score: 0.462 - Frequency Within Block - elapsed time: 7 ms
+- FAILED - score: 0.005 - Runs - elapsed time: 0 ms
+- PASSED - score: 0.06 - Longest Run Ones In A Block - elapsed time: 1 ms
+- FAILED - score: 0.0 - Discrete Fourier Transform - elapsed time: 1 ms
+- PASSED - score: 0.997 - Non Overlapping Template Matching - elapsed time: 66 ms
+- PASSED - score: 0.112 - Serial - elapsed time: 620 ms
+- PASSED - score: 0.024 - Approximate Entropy - elapsed time: 332 ms
+- PASSED - score: 0.776 - Cumulative Sums - elapsed time: 91 ms
+- FAILED - score: 0.112 - Random Excursion - elapsed time: 227 ms
+- PASSED - score: 0.481 - Random Excursion Variant - elapsed time: 3 ms
+Randomness test Passed!
+================================
+
 
 =>VERIFYING ORDER...
 i/p state
-['a', 'b', 'c', 'c', 'd', 'b']
-a   1
-b   2
-c   3
-c   3
-d   4
-b   5
-Accepting state: 5
-['a', 'b', 'b']
+['a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a', 'b', 'a']
 a   1
 b   0
-Failed Order- current state:0 trigger:b final:{0}
+a   1
+b   0
+a   1
+b   0
+a   1
+b   0
+a   1
+b   0
+a   1
+b   0
+a   1
+b   0
+a   1
+b   0
+a   1
+b   0
+a   1
+b   0
+a   1
+failed Order- current state:1 trigger:a final:{0}
+['c', 'd', 'e', 'd', 'c', 'd', 'e', 'd', 'c', 'd', 'e', 'd', 'c', 'd', 'e', 'd', 'c', 'd', 'e', 'd']
+c   1
+d   2
+e   3
+d   3
+c   1
+d   2
+e   3
+d   3
+c   1
+d   2
+e   3
+d   3
+c   1
+d   2
+e   3
+d   3
+c   1
+d   2
+e   3
+d   3
+Accepting state: 3
 
 =>VERIFYING FORBIDDEN API...
-['c', 'd']
-Forbidden API SSL_CTX_get_cert_store() is used
-Forbidden API SSL_CTX_get_cert_store() is used
-Forbidden API SSL_new() is used
+['h']
+Forbidden API aes\_ecb\_cipher() is used
 
 ```
-![State Machine](https://github.com/amitsirius/cryscanner/blob/main/my_state_diagram.png?raw=true)
+![State Machine](https://github.com/amitsirius/cryscanner/blob/main/my\_state\_diagram.png?raw=true)
 
 ## Done
 - [x] Implement rule\_parser and extract list of objects, contraints, order.
@@ -180,9 +290,10 @@ Forbidden API SSL_new() is used
 - [x] Implement Operations for constraint check (EQ, RAND, PRIME, REPLAY)
 - [x] Implement Forbidden API suppot in rules
 - [x] Identify Final state in order verification
+- [x] Add support for EQV for checking parameter corelations
+- [x] Add randomness support using NIST tests
 ## TODO
 - [-] Add support of return value
-- [-] Implement better version of RAND and PASS
 
 **Free Software, Hell Yeah!**
 
