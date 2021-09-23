@@ -5,7 +5,7 @@
 #include <string.h>
  
 typedef unsigned char uchar;
-#define NUM_BITS  2048
+#define NUM_BITS  512
 #define PADDING   RSA_PKCS1_PADDING
 #define PADDING2  RSA_NO_PADDING
 #define PADDING3  RSA_PKCS1_OAEP_PADDING

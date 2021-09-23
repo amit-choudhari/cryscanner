@@ -2,12 +2,13 @@ OBJECTS
 	a: RSA_public_encrypt()
 	b: RSA_private_decrypt()
 	c: RSA_generate_key()
+	d: RSA_generate_key_ex()
 
 ORDER
 
 CONSTRAINTS
 	EQ(b:padding == 4)
-	EQ(a:bits >= 1024)
-	EQ(b:bits >= 1024)
+	EQ(d:bits >= 1024)
 
 FORBIDDEN
+	a,b
