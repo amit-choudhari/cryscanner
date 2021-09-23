@@ -72,7 +72,11 @@ class SimpleCommand(gdb.Command):
                             pass
              
                     else:
-                        if 'key'or'iv' in arg:
+                        if 'key' in arg:
+                            print("array ",arg)
+                            s1 = 'print/x *' +arg+'@32'
+                            gdb.execute(s1)
+                        elif 'iv' in arg:
                             print("array ",arg)
                             s1 = 'print/x *' +arg+'@32'
                             gdb.execute(s1)

@@ -17,6 +17,7 @@ CONSTRAINTS
 	x3: REPLAY(c:key)
 	x5: RAND(i:salt)
 	x6: RAND(c:key)
+	x6: EQ(i:count>1000)
 
 FORBIDDEN
 	h
