@@ -20,7 +20,7 @@ b. rule\_scanner.py: Parses the rules file to extracts the information on parame
 1. object.py: Basic block representing each function call. Contains function name, map of all parameter name and value. The naming conventions is as per the depth of variable```{struct_name(optional)}.{struct_name(optional)}.{variable_name}```. For example: given a function ```init(struct SSL_ctx *ctx)```. where ```struct SSL_ctx``` contains variable ```version```. version is referred as ```ctx.version``` in rules and also stored with same name in object.
 2. constraint.py: Implements different constraint checks like EQ, RAND, PRIME, REPLAY, PASS.
 3. order.py: Implements the state machine for expected call flow and verifies it with the runtime call flow.
-![Class diagram](https://github.com/amitsirius/cryscanner/blob/main/block\_diag\_crysc.png?raw=true)
+![Class Diagram](https://github.com/amitsirius/cryscanner/blob/main/block\_diag\_crysc.png?raw=true)
 
 #### Rule File:
 Below is a sample rule file.
